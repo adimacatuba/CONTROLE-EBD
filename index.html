@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Relatórios — EBD Macatuba</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='6' width='40' height='36' rx='3' fill='%231d3461'/%3E%3Crect x='6' y='8' width='16' height='32' rx='2' fill='%23c59b2f'/%3E%3Crect x='22' y='8' width='20' height='32' rx='2' fill='%23f0ece0'/%3E%3Crect x='20' y='6' width='8' height='36' rx='1' fill='%23162a50'/%3E%3Crect x='29' y='12' width='5' height='18' rx='1.5' fill='%231d3461'/%3E%3Crect x='25' y='18' width='13' height='5' rx='1.5' fill='%231d3461'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{--primary:#1d3461;--primary-light:#2a4a87;--accent:#c59b2f;--accent-light:#d4af4a;--bg:#f5f4f0;--surface:#ffffff;--surface2:#f9f8f5;--text:#1a1a2e;--text-muted:#6b6f82;--border:#e0dbd0;--shadow-sm:0 1px 3px rgba(29,52,97,0.08);--shadow:0 4px 16px rgba(29,52,97,0.10);--shadow-lg:0 8px 32px rgba(29,52,97,0.14);--radius:12px;--radius-sm:8px;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;}
+.app-header{position:sticky;top:0;z-index:100;background:var(--primary);box-shadow:0 2px 12px rgba(0,0,0,0.18);}
+.header-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:64px;}
+.logo{display:flex;align-items:center;gap:12px;text-decoration:none;}
+.logo-icon{width:40px;height:40px;flex-shrink:0;}
+.logo-text{display:flex;flex-direction:column;line-height:1.1;}
+.logo-title{font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:700;color:#fff;letter-spacing:0.02em;}
+.logo-sub{font-size:0.65rem;font-weight:500;color:rgba(255,255,255,0.65);text-transform:uppercase;letter-spacing:0.12em;}
+.nav-tabs{display:flex;gap:2px;}
+.nav-tab{background:transparent;border:none;color:rgba(255,255,255,0.7);padding:8px 14px;border-radius:8px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.82rem;font-weight:500;transition:all .2s;display:flex;align-items:center;gap:6px;white-space:nowrap;}
+.nav-tab:hover{background:rgba(255,255,255,0.1);color:#fff;}
+.nav-tab.active{background:rgba(255,255,255,0.15);color:#fff;}
+.nav-tab svg{width:16px;height:16px;flex-shrink:0;}
+.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:100;background:var(--primary);border-top:1px solid rgba(255,255,255,0.1);padding:6px 0 calc(6px + env(safe-area-inset-bottom));}
+.mobile-nav-inner{display:flex;justify-content:space-around;}
+.mob-tab{background:transparent;border:none;color:rgba(255,255,255,0.6);padding:6px 10px;border-radius:8px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.6rem;font-weight:500;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:52px;}
+.mob-tab svg{width:20px;height:20px;}
+.mob-tab.active{color:#fff;}
+.mob-tab.active svg{filter:drop-shadow(0 0 6px rgba(197,155,47,0.8));}
+.main{max-width:1200px;margin:0 auto;padding:28px 20px 100px;}
+.section{display:none;}.section.active{display:block;}
+.page-title{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;color:var(--primary);margin-bottom:4px;}
+.page-sub{color:var(--text-muted);font-size:0.85rem;margin-bottom:24px;}
+.card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow-sm);border:1px solid var(--border);}
+.card-header{padding:16px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.card-title{font-family:'Playfair Display',serif;font-size:1rem;font-weight:600;color:var(--primary);}
+.card-body{padding:22px;}
+.form-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:16px;}
+.form-group{display:flex;flex-direction:column;gap:5px;}
+.form-group label{font-size:0.78rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;}
+.form-control{border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.9rem;color:var(--text);background:var(--surface);transition:border-color .2s,box-shadow .2s;outline:none;}
+.form-control:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(29,52,97,0.1);}
+select.form-control{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6f82' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:var(--radius-sm);border:1px solid var(--border);}
+.data-table{width:100%;border-collapse:collapse;font-size:0.83rem;}
+.data-table th{background:var(--primary);color:#fff;font-weight:600;padding:10px;text-align:center;white-space:nowrap;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.04em;}
+.data-table th:first-child{text-align:left;padding-left:14px;}
+.data-table td{padding:8px;text-align:center;border-bottom:1px solid var(--border);vertical-align:middle;}
+.data-table td:first-child{text-align:left;padding-left:14px;font-weight:500;white-space:nowrap;font-size:0.82rem;}
+.data-table tr:hover td{background:var(--surface2);}
+.data-table tr.total-row td{background:var(--primary);color:#fff;font-weight:700;}
+.data-table tr.prev-row td{background:#f0f4fa;color:var(--primary);font-style:italic;}
+.data-table tr.prev-row td:first-child{font-weight:600;}
+.data-table input{width:70px;border:1px solid #ccc;border-radius:5px;padding:5px 6px;text-align:center;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.82rem;background:#fff;outline:none;transition:border-color .2s,box-shadow .2s;}
+.data-table input:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba(29,52,97,0.12);}
+.data-table input[readonly]{background:#f0f4fa;color:var(--primary);font-weight:600;cursor:default;border-style:dashed;}
+.data-table tr.total-row input[readonly]{background:rgba(255,255,255,0.15);color:#fff;border-color:rgba(255,255,255,0.3);}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:var(--radius-sm);border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.875rem;font-weight:600;transition:all .2s;text-decoration:none;white-space:nowrap;}
+.btn-primary{background:var(--primary);color:#fff;}.btn-primary:hover{background:var(--primary-light);}
+.btn-accent{background:var(--accent);color:#fff;}.btn-accent:hover{background:var(--accent-light);}
+.btn-outline{background:transparent;color:var(--primary);border:1.5px solid var(--border);}.btn-outline:hover{border-color:var(--primary);background:rgba(29,52,97,0.04);}
+.btn-danger{background:#dc3545;color:#fff;}.btn-danger:hover{background:#c82333;}
+.btn-excel{background:#1D6F42;color:#fff;}.btn-excel:hover{background:#155634;}
+.btn-teal{background:#0d7377;color:#fff;}.btn-teal:hover{background:#0a5c60;}
+.nav-tab-avisos{background:rgba(197,155,47,0.18)!important;color:#fff!important;border:1px solid rgba(197,155,47,0.4)!important;}
+.nav-tab-avisos:hover{background:rgba(197,155,47,0.32)!important;}
+.mob-tab-avisos{color:rgba(255,255,255,0.85)!important;}
+.btn-sm{padding:7px 14px;font-size:0.8rem;}
+.btn-icon{padding:7px;}
+.btn svg{width:16px;height:16px;}
+.action-bar{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:24px;}
+.stat-card{background:var(--surface);border-radius:var(--radius);padding:18px 20px;border:1px solid var(--border);box-shadow:var(--shadow-sm);}
+.stat-card .stat-label{font-size:0.72rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px;}
+.stat-card .stat-value{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:700;color:var(--primary);line-height:1;}
+.stat-card .stat-sub{font-size:0.75rem;color:var(--text-muted);margin-top:4px;}
+.stat-card.accent .stat-value{color:var(--accent);}
+.charts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:20px;margin-bottom:24px;}
+.chart-card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow-sm);padding:20px;}
+.chart-title{font-size:0.82rem;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:16px;}
+.chart-wrap{position:relative;height:220px;}
+.report-list{display:flex;flex-direction:column;gap:10px;}
+.report-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;transition:box-shadow .2s;}
+.report-item:hover{box-shadow:var(--shadow);}
+.report-item-info{flex:1;}
+.report-item-date{font-family:'Playfair Display',serif;font-size:1rem;font-weight:600;color:var(--primary);}
+.report-item-meta{font-size:0.78rem;color:var(--text-muted);margin-top:3px;}
+.report-item-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:20px;font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;}
+.badge-primary{background:rgba(29,52,97,0.1);color:var(--primary);}
+.badge-green{background:rgba(13,115,119,0.14);color:#0a5c60;}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(2px);}
+.modal-overlay.hidden{display:none;}
+.modal{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow-lg);width:100%;max-width:560px;max-height:90vh;overflow-y:auto;}
+.modal-header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.modal-title{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--primary);}
+.modal-close{background:transparent;border:none;cursor:pointer;padding:6px;border-radius:6px;color:var(--text-muted);transition:background .2s;font-size:1rem;}
+.modal-close:hover{background:var(--surface2);}
+.modal-body{padding:24px;}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;align-items:center;}
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.cal-month-label{font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:700;color:var(--primary);}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.cal-day-name{text-align:center;font-size:0.7rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;padding:6px 0;}
+.cal-day{min-height:76px;border-radius:var(--radius-sm);border:1px solid var(--border);padding:6px;cursor:pointer;transition:all .2s;position:relative;background:var(--surface);}
+.cal-day:hover{border-color:var(--primary);box-shadow:0 2px 8px rgba(29,52,97,0.1);}
+.cal-day.other-month{background:var(--surface2);opacity:0.5;}
+.cal-day.today .day-num{background:var(--primary);color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;}
+.cal-day.has-events{border-color:var(--accent);}
+.day-num{font-size:0.82rem;font-weight:600;color:var(--text);margin-bottom:4px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;}
+.cal-event-dot{font-size:0.65rem;padding:2px 5px;border-radius:3px;margin-bottom:2px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:#fff;font-weight:500;}
+.cal-year-nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+.report-detail-table{width:100%;border-collapse:collapse;font-size:0.8rem;}
+.report-detail-table th{background:var(--primary);color:#fff;padding:7px 10px;text-align:center;font-size:0.72rem;}
+.report-detail-table th:first-child{text-align:left;}
+.report-detail-table td{padding:6px 10px;text-align:center;border-bottom:1px solid var(--border);}
+.report-detail-table td:first-child{text-align:left;font-weight:500;}
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;align-items:center;}
+.filter-btn{padding:7px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface);cursor:pointer;font-size:0.8rem;font-weight:600;color:var(--text-muted);transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif;}
+.filter-btn.active{background:var(--primary);color:#fff;border-color:var(--primary);}
+.filter-btn:hover:not(.active){border-color:var(--primary);color:var(--primary);}
+.empty-state{text-align:center;padding:48px 20px;color:var(--text-muted);}
+.empty-state svg{width:48px;height:48px;opacity:0.3;margin-bottom:12px;}
+.empty-state p{font-size:0.9rem;}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--primary);color:#fff;padding:12px 20px;border-radius:var(--radius);box-shadow:var(--shadow-lg);font-size:0.875rem;font-weight:500;z-index:300;transition:opacity .3s;pointer-events:none;max-width:90vw;text-align:center;}
+.toast.hidden{opacity:0;}
+.period-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:20px;}
+.trimester-info{background:rgba(29,52,97,0.04);border-left:3px solid var(--accent);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:10px 14px;font-size:0.82rem;color:var(--primary);margin-bottom:16px;}
+/* Class Manager */
+.class-list-item{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:8px;background:var(--surface);gap:10px;}
+.class-list-item:hover{box-shadow:var(--shadow-sm);}
+.class-list-item-info{flex:1;min-width:0;}
+.class-list-item-label{font-weight:600;font-size:0.88rem;color:var(--primary);}
+.class-list-item-key{font-size:0.7rem;color:var(--text-muted);margin-top:2px;}
+.class-list-item-actions{display:flex;gap:5px;flex-shrink:0;}
+/* Import */
+.import-dropzone{border:2px dashed var(--border);border-radius:var(--radius);padding:28px 20px;text-align:center;cursor:pointer;transition:all .2s;position:relative;background:var(--surface2);}
+.import-dropzone:hover,.import-dropzone.drag-over{border-color:var(--primary);background:rgba(29,52,97,0.04);}
+.import-dropzone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;z-index:2;}
+.import-dropzone .dz-icon{font-size:2.4rem;margin-bottom:8px;display:block;}
+.import-dropzone .dz-text{font-size:0.9rem;font-weight:600;color:var(--primary);margin-bottom:4px;}
+.import-dropzone .dz-sub{font-size:0.78rem;color:var(--text-muted);}
+.import-status{margin-top:14px;font-size:0.85rem;font-weight:500;min-height:22px;}
+.import-preview{margin-top:8px;}
+.import-spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-right:6px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+@media(max-width:768px){
+  .nav-tabs{display:none;}.mobile-nav{display:block;}
+  .main{padding:16px 12px 90px;}.header-inner{padding:0 14px;}
+  .logo-title{font-size:1rem;}.charts-grid{grid-template-columns:1fr;}
+  .data-table input{width:56px;font-size:0.77rem;padding:4px;}
+  .data-table th,.data-table td{padding:6px 5px;}
+  .cal-day{min-height:56px;padding:4px;}.cal-event-dot{display:none;}
+  .cal-day.has-events::after{content:'•';position:absolute;bottom:4px;right:6px;color:var(--accent);font-size:14px;}
+  .stats-grid{grid-template-columns:repeat(2,1fr);}
+  .report-item{flex-direction:column;align-items:flex-start;}
+  .report-item-actions{width:100%;}.modal{max-height:85vh;}
+  .page-title{font-size:1.3rem;}.form-row{grid-template-columns:1fr 1fr;}
+  .chart-wrap{height:180px;}
+}
+@media(max-width:480px){
+  .stats-grid{grid-template-columns:repeat(2,1fr);}
+  .filter-btn{padding:6px 10px;font-size:0.75rem;}
+  .cal-grid{gap:2px;}.cal-day{min-height:44px;}.day-num{font-size:0.75rem;}
+}
+</style>
+</head>
+<body>
+<header class="app-header">
+  <div class="header-inner">
+    <a class="logo" href="#">
+      <svg class="logo-icon" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+        <rect x="4" y="6" width="40" height="36" rx="3" fill="#c59b2f"/>
+        <rect x="5" y="7" width="38" height="34" rx="2.5" fill="#1d3461"/>
+        <rect x="7" y="9" width="15" height="30" rx="2" fill="#c59b2f"/>
+        <rect x="22" y="9" width="22" height="30" rx="2" fill="#f0ece0"/>
+        <rect x="20" y="7" width="8" height="34" rx="1.5" fill="#0f2347"/>
+        <rect x="29" y="14" width="4.5" height="16" rx="1.5" fill="#1d3461"/>
+        <rect x="25" y="19.5" width="12" height="4.5" rx="1.5" fill="#1d3461"/>
+      </svg>
+      <div class="logo-text"><span class="logo-title">Relatórios EBD</span><span class="logo-sub">ADI Macatuba</span></div>
+    </a>
+    <nav class="nav-tabs">
+      <button class="nav-tab active" onclick="App.navigate('report')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Novo Relatório
+      </button>
+      <button class="nav-tab" onclick="App.navigate('saved')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        Relatórios Salvos
+      </button>
+      <button class="nav-tab" onclick="App.navigate('stats')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Estatísticas
+      </button>
+      <button class="nav-tab" onclick="App.navigate('calendar')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Calendário
+      </button>
+      <a class="nav-tab nav-tab-avisos" href="https://adimacatuba.github.io/CENTRAL-DE-AVISOS/" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        Central de Avisos
+      </a>
+    </nav>
+  </div>
+</header>
+<main class="main">
+  <section id="sec-report" class="section active">
+    <h1 class="page-title">Novo Relatório</h1>
+    <p class="page-sub">Preencha os dados da aula dominical</p>
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-header"><span class="card-title">Informações Gerais</span></div>
+      <div class="card-body">
+        <div class="form-row">
+          <div class="form-group"><label>Data do Domingo</label><input type="date" class="form-control" id="f-date"></div>
+          <div class="form-group"><label>Trimestre</label>
+            <select class="form-control" id="f-trimestre">
+              <option value="1º Trimestre">1º Trimestre</option>
+              <option value="2º Trimestre" selected>2º Trimestre</option>
+              <option value="3º Trimestre">3º Trimestre</option>
+              <option value="4º Trimestre">4º Trimestre</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Ano</label><input type="number" class="form-control" id="f-year" value="2026" min="2020" max="2099"></div>
+          <div class="form-group"><label>Congregação</label><input type="text" class="form-control" id="f-congregacao" value="Macatuba" readonly></div>
+        </div>
+        <div class="trimester-info" id="trimester-info">📅 2º Trimestre de 2026 · ADI Macatuba</div>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-header">
+        <span class="card-title">Dados das Classes</span>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <span style="font-size:0.73rem;color:var(--text-muted)">Presentes e Total calculados automaticamente</span>
+          <button class="btn btn-outline btn-sm" onclick="ClassManager.open()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+            Gerenciar Classes
+          </button>
+        </div>
+      </div>
+      <div class="card-body" style="padding:0;">
+        <div class="table-wrap">
+          <table class="data-table" id="report-table">
+            <thead><tr>
+              <th style="min-width:185px">Classe</th><th>Matric.</th><th>Ausentes</th>
+              <th>Presentes</th><th>Visitantes</th><th>Total</th>
+              <th>Bíblia</th><th>Revista</th><th>Oferta (R$)</th>
+            </tr></thead>
+            <tbody id="report-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-header"><span class="card-title">Domingo Anterior (referência)</span></div>
+      <div class="card-body" style="padding:0;">
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr>
+              <th style="min-width:185px">Referência</th><th>Matric.</th><th>Ausentes</th>
+              <th>Presentes</th><th>Visitantes</th><th>Total</th>
+              <th>Bíblia</th><th>Revista</th><th>Oferta (R$)</th>
+            </tr></thead>
+            <tbody><tr>
+              <td>Total Domingo Anterior</td>
+              <td><input type="number" min="0" id="prev-matriculados" value="0"></td>
+              <td><input type="number" min="0" id="prev-ausentes" value="0"></td>
+              <td><input type="number" min="0" id="prev-presentes" value="0" readonly></td>
+              <td><input type="number" min="0" id="prev-visitantes" value="0"></td>
+              <td><input type="number" min="0" id="prev-total" value="0" readonly></td>
+              <td><input type="number" min="0" id="prev-biblia" value="0"></td>
+              <td><input type="number" min="0" id="prev-revista" value="0"></td>
+              <td><input type="number" min="0" step="0.01" id="prev-oferta" value="0"></td>
+            </tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="action-bar">
+      <button class="btn btn-primary" onclick="ReportForm.save()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Salvar Relatório
+      </button>
+      <button class="btn btn-accent" onclick="ReportForm.downloadPDF()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Baixar PDF
+      </button>
+      <button class="btn btn-excel" onclick="ReportForm.downloadExcel()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/><path d="M3 9h18"/></svg>
+        Baixar Excel
+      </button>
+      <button class="btn btn-teal" onclick="ImportManager.open()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Importar Planilha
+      </button>
+      <button class="btn btn-outline" onclick="ReportForm.clear()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.14"/></svg>
+        Limpar
+      </button>
+    </div>
+  </section>
+
+  <section id="sec-saved" class="section">
+    <h1 class="page-title">Relatórios Salvos</h1>
+    <p class="page-sub">Histórico de todos os relatórios elaborados</p>
+    <div class="filter-bar">
+      <input type="text" class="form-control" id="search-reports" placeholder="Buscar por data ou trimestre..." style="max-width:280px;padding:7px 12px;font-size:0.83rem;" oninput="SavedReports.render()">
+    </div>
+    <div id="saved-list"></div>
+  </section>
+
+  <section id="sec-stats" class="section">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:4px;">
+      <h1 class="page-title">Estatísticas</h1>
+      <button class="btn btn-accent btn-sm" onclick="Statistics.downloadPDF()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exportar PDF
+      </button>
+    </div>
+    <p class="page-sub">Análise dos dados da Escola Bíblica Dominical</p>
+    <div class="period-row">
+      <span style="font-size:0.82rem;font-weight:600;color:var(--text-muted)">Período:</span>
+      <div class="filter-bar" style="margin:0;">
+        <button class="filter-btn active" data-period="month" onclick="Statistics.setPeriod('month',this)">Mês</button>
+        <button class="filter-btn" data-period="quarter" onclick="Statistics.setPeriod('quarter',this)">Trimestre</button>
+        <button class="filter-btn" data-period="semester" onclick="Statistics.setPeriod('semester',this)">Semestre</button>
+        <button class="filter-btn" data-period="year" onclick="Statistics.setPeriod('year',this)">Ano</button>
+      </div>
+      <select class="form-control" id="stats-month" style="max-width:140px;" onchange="Statistics.render()">
+        <option value="0">Janeiro</option><option value="1">Fevereiro</option><option value="2">Março</option>
+        <option value="3">Abril</option><option value="4">Maio</option><option value="5">Junho</option>
+        <option value="6">Julho</option><option value="7">Agosto</option><option value="8">Setembro</option>
+        <option value="9">Outubro</option><option value="10">Novembro</option><option value="11">Dezembro</option>
+      </select>
+      <select class="form-control" id="stats-year" style="max-width:100px;" onchange="Statistics.render()">
+        <option value="2024">2024</option><option value="2025">2025</option>
+        <option value="2026" selected>2026</option><option value="2027">2027</option>
+      </select>
+    </div>
+    <div class="stats-grid" id="stats-cards"></div>
+    <div class="charts-grid" id="stats-charts">
+      <div class="chart-card"><div class="chart-title">📈 Evolução de Presença</div><div class="chart-wrap"><canvas id="chart-attendance"></canvas></div></div>
+      <div class="chart-card"><div class="chart-title">📊 Presença por Classe</div><div class="chart-wrap"><canvas id="chart-classes"></canvas></div></div>
+      <div class="chart-card"><div class="chart-title">📚 Bíblias e Revistas</div><div class="chart-wrap"><canvas id="chart-bibles"></canvas></div></div>
+      <div class="chart-card"><div class="chart-title">💰 Ofertas por Domingo</div><div class="chart-wrap"><canvas id="chart-offerings"></canvas></div></div>
+    </div>
+    <div id="stats-empty" class="empty-state" style="display:none;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      <p>Nenhum relatório encontrado para este período.</p>
+    </div>
+  </section>
+
+  <section id="sec-calendar" class="section">
+    <h1 class="page-title">Calendário</h1>
+    <p class="page-sub">Agenda e observações anuais</p>
+    <div class="cal-year-nav">
+      <button class="btn btn-outline btn-sm" onclick="Cal.prevMonth()">◀</button>
+      <select class="form-control" id="cal-month-sel" style="max-width:150px;" onchange="Cal.renderMonth()">
+        <option value="0">Janeiro</option><option value="1">Fevereiro</option><option value="2">Março</option>
+        <option value="3">Abril</option><option value="4">Maio</option><option value="5">Junho</option>
+        <option value="6">Julho</option><option value="7">Agosto</option><option value="8">Setembro</option>
+        <option value="9">Outubro</option><option value="10">Novembro</option><option value="11">Dezembro</option>
+      </select>
+      <select class="form-control" id="cal-year-sel" style="max-width:100px;" onchange="Cal.renderMonth()">
+        <option value="2025">2025</option><option value="2026" selected>2026</option>
+        <option value="2027">2027</option><option value="2028">2028</option>
+      </select>
+      <button class="btn btn-outline btn-sm" onclick="Cal.nextMonth()">▶</button>
+      <button class="btn btn-primary btn-sm" onclick="Cal.goToday()">Hoje</button>
+    </div>
+    <div class="card">
+      <div class="card-body" style="padding:16px;">
+        <div class="cal-header">
+          <span class="cal-month-label" id="cal-month-label"></span>
+          <span style="font-size:0.78rem;color:var(--text-muted)">Clique em um dia para adicionar eventos</span>
+        </div>
+        <div class="cal-grid">
+          <div class="cal-day-name">Dom</div><div class="cal-day-name">Seg</div><div class="cal-day-name">Ter</div>
+          <div class="cal-day-name">Qua</div><div class="cal-day-name">Qui</div><div class="cal-day-name">Sex</div><div class="cal-day-name">Sáb</div>
+        </div>
+        <div class="cal-grid" id="cal-days"></div>
+      </div>
+    </div>
+    <div id="cal-events-panel" style="margin-top:20px;display:none;">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title" id="cal-selected-date-label">Eventos</span>
+          <button class="btn btn-primary btn-sm" onclick="Cal.openAddEvent()">+ Adicionar</button>
+        </div>
+        <div class="card-body" id="cal-events-list"></div>
+      </div>
+    </div>
+  </section>
+</main>
+<nav class="mobile-nav">
+  <div class="mobile-nav-inner">
+    <button class="mob-tab active" id="mob-report" onclick="App.navigate('report')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Relatório
+    </button>
+    <button class="mob-tab" id="mob-saved" onclick="App.navigate('saved')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>Salvos
+    </button>
+    <button class="mob-tab" id="mob-stats" onclick="App.navigate('stats')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Stats
+    </button>
+    <button class="mob-tab" id="mob-calendar" onclick="App.navigate('calendar')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Agenda
+    </button>
+    <a class="mob-tab mob-tab-avisos" href="https://adimacatuba.github.io/CENTRAL-DE-AVISOS/" target="_blank" rel="noopener" style="text-decoration:none;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Avisos
+    </a>
+  </div>
+</nav>
+<!-- MODAL: VER RELATÓRIO -->
+<div class="modal-overlay hidden" id="modal-view-report">
+  <div class="modal" style="max-width:720px;">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-report-title">Relatório</span>
+      <button class="modal-close" onclick="closeModal('modal-view-report')">✕</button>
+    </div>
+    <div class="modal-body" id="modal-report-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-accent btn-sm" id="modal-report-pdf-btn">⬇ Baixar PDF</button>
+      <button class="btn btn-excel btn-sm" id="modal-report-excel-btn">📊 Baixar Excel</button>
+      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-view-report')">Fechar</button>
+    </div>
+  </div>
+</div>
+<!-- MODAL: EVENTO -->
+<div class="modal-overlay hidden" id="modal-event">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-event-title">Novo Evento</span>
+      <button class="modal-close" onclick="closeModal('modal-event')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group" style="margin-bottom:14px;"><label>Título do Evento</label><input type="text" class="form-control" id="evt-title" placeholder="Ex: Culto especial, Reunião..."></div>
+      <div class="form-group" style="margin-bottom:14px;"><label>Observação / Descrição</label><textarea class="form-control" id="evt-desc" rows="3" placeholder="Detalhes..." style="resize:vertical;"></textarea></div>
+      <div class="form-group"><label>Cor</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">
+          <div class="color-opt" data-color="#1d3461" style="width:28px;height:28px;border-radius:50%;background:#1d3461;cursor:pointer;border:2px solid transparent;" onclick="Cal.selectColor(this)"></div>
+          <div class="color-opt" data-color="#c59b2f" style="width:28px;height:28px;border-radius:50%;background:#c59b2f;cursor:pointer;border:2px solid transparent;" onclick="Cal.selectColor(this)"></div>
+          <div class="color-opt" data-color="#2d6a4f" style="width:28px;height:28px;border-radius:50%;background:#2d6a4f;cursor:pointer;border:2px solid transparent;" onclick="Cal.selectColor(this)"></div>
+          <div class="color-opt" data-color="#c0392b" style="width:28px;height:28px;border-radius:50%;background:#c0392b;cursor:pointer;border:2px solid transparent;" onclick="Cal.selectColor(this)"></div>
+          <div class="color-opt" data-color="#7b2d8b" style="width:28px;height:28px;border-radius:50%;background:#7b2d8b;cursor:pointer;border:2px solid transparent;" onclick="Cal.selectColor(this)"></div>
+          <div class="color-opt" data-color="#2980b9" style="width:28px;height:28px;border-radius:50%;background:#2980b9;cursor:pointer;border:2px solid transparent;" onclick="Cal.selectColor(this)"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="Cal.saveEvent()">Salvar</button>
+      <button class="btn btn-outline" onclick="closeModal('modal-event')">Cancelar</button>
+    </div>
+  </div>
+</div>
+<!-- MODAL: GERENCIAR CLASSES -->
+<div class="modal-overlay hidden" id="modal-classes">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-header">
+      <span class="modal-title">⚙️ Gerenciar Classes</span>
+      <button class="modal-close" onclick="closeModal('modal-classes')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:16px;">Adicione, remova ou reordene as classes. <strong>Classes sem dados não aparecem em relatórios ou exportações.</strong></p>
+      <div id="class-manager-list" style="max-height:320px;overflow-y:auto;"></div>
+      <div style="border-top:1px solid var(--border);margin-top:16px;padding-top:16px;">
+        <p style="font-size:0.78rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;">➕ Adicionar Nova Classe</p>
+        <div style="display:flex;gap:8px;">
+          <input type="text" class="form-control" id="new-class-label" placeholder="Nome da classe (ex: Jovens Universitários)" style="flex:1;">
+          <button class="btn btn-primary btn-sm" onclick="ClassManager.add()">Adicionar</button>
+        </div>
+        <p style="font-size:0.72rem;color:var(--text-muted);margin-top:6px;">A chave interna é gerada automaticamente a partir do nome.</p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="ClassManager.reset()" style="margin-right:auto;color:#dc3545;border-color:#dc3545;">↺ Restaurar Padrão</button>
+      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-classes')">Cancelar</button>
+      <button class="btn btn-primary btn-sm" onclick="ClassManager.applyAndClose()">✅ Aplicar</button>
+    </div>
+  </div>
+</div>
+<!-- MODAL: IMPORTAR -->
+<div class="modal-overlay hidden" id="modal-import">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-header">
+      <span class="modal-title">📊 Importar Planilha Excel</span>
+      <button class="modal-close" onclick="closeModal('modal-import')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:16px;">
+        Envie uma <strong>planilha .xlsx ou .xls</strong> exportada pelo site ou criada no mesmo formato. Os dados serão preenchidos automaticamente no formulário.<br><br>
+        A planilha deve seguir o mesmo layout da tabela do site: coluna A com o nome da classe, seguida das colunas Matrícula, Ausentes, Presentes, Visitantes, Total, Bíblia, Revista, Oferta.
+      </p>
+      <div class="import-dropzone" id="import-dropzone"
+           ondragover="ImportManager.onDragOver(event)"
+           ondragleave="ImportManager.onDragLeave(event)"
+           ondrop="ImportManager.onDrop(event)">
+        <input type="file" id="import-file-input" accept=".xlsx,.xls" onclick="this.value=''" onchange="ImportManager.handleFile(this.files[0])">
+        <span class="dz-icon">📊</span>
+        <p class="dz-text">Clique para selecionar ou arraste a planilha aqui</p>
+        <p class="dz-sub">Formatos aceitos: .xlsx &nbsp;·&nbsp; .xls</p>
+      </div>
+      <div class="import-status" id="import-status"></div>
+      <div class="import-preview" id="import-preview"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" id="btn-apply-import" style="display:none;" onclick="ImportManager.apply()">✅ Preencher Formulário</button>
+      <button class="btn btn-outline" onclick="closeModal('modal-import')">Fechar</button>
+    </div>
+  </div>
+</div>
+<div id="toast" class="toast hidden"></div>
+<script>
+// ══ CLASSES DINÂMICAS ══
+const CLASSES_DEFAULT=[
+  {key:'oficiais',label:'OFICIAIS'},
+  {key:'adultosIrmas',label:'ADULTOS \u2014 IRM\u00c3S'},
+  {key:'adultosIrmaos',label:'ADULTOS \u2014 IRM\u00c3OS'},
+  {key:'jovens',label:'JOVENS'},
+  {key:'juvenis',label:'JUVENIS (15-17 anos)'},
+  {key:'adolescentes',label:'ADOLESCENTES (13-14 anos)'},
+  {key:'preAdoles',label:'PR\u00c9-ADOLESCENTES (11-12 anos)'},
+  {key:'juniores',label:'JUNIORES (9-10 anos)'},
+  {key:'primarios',label:'PRIM\u00c1RIOS (7-8 anos)'},
+  {key:'jardim',label:'JARDIM INF\u00c2NCIA (5-6 anos)'},
+  {key:'maternal',label:'MATERNAL (3-4 anos)'},
+];
+function getClasses(){try{const s=JSON.parse(localStorage.getItem('ebd_classes')||'null');return s&&s.length?s:CLASSES_DEFAULT;}catch{return CLASSES_DEFAULT;}}
+function saveClasses(c){localStorage.setItem('ebd_classes',JSON.stringify(c));}
+function labelToKey(l){return l.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9 ]/g,'').trim().split(/\s+/).filter(w=>w).map((w,i)=>i===0?w.toLowerCase():w[0].toUpperCase()+w.slice(1).toLowerCase()).join('');}
+
+const FIELDS=['matriculados','ausentes','presentes','visitantes','total','biblia','revista','oferta'];
+const MONTHS_PT=['Janeiro','Fevereiro','Mar\u00e7o','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+// ══ DB ══
+const DB={
+  getReports(){try{return JSON.parse(localStorage.getItem('ebd_reports')||'[]');}catch{return[];}},
+  saveReport(r){const a=this.getReports();const i=a.findIndex(x=>x.id===r.id);if(i>=0)a[i]=r;else a.unshift(r);localStorage.setItem('ebd_reports',JSON.stringify(a));},
+  deleteReport(id){localStorage.setItem('ebd_reports',JSON.stringify(this.getReports().filter(r=>r.id!==id)));},
+  getEvents(){try{return JSON.parse(localStorage.getItem('ebd_events')||'[]');}catch{return[];}},
+  saveEvent(e){const a=this.getEvents();const i=a.findIndex(x=>x.id===e.id);if(i>=0)a[i]=e;else a.push(e);localStorage.setItem('ebd_events',JSON.stringify(a));},
+  deleteEvent(id){localStorage.setItem('ebd_events',JSON.stringify(this.getEvents().filter(e=>e.id!==id)));}
+};
+
+// ══ UTILS ══
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2);}
+function showToast(msg,dur=2800){const t=document.getElementById('toast');t.textContent=msg;t.classList.remove('hidden');setTimeout(()=>t.classList.add('hidden'),dur);}
+function closeModal(id){document.getElementById(id).classList.add('hidden');}
+function openModal(id){document.getElementById(id).classList.remove('hidden');}
+function fmtDate(d){if(!d)return'';const p=d.split('-');return p.length<3?d:`${p[2]}/${p[1]}/${p[0]}`;}
+function fmtDateLong(d){if(!d)return'';const p=d.split('-');const m=['janeiro','fevereiro','mar\u00e7o','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];return`${parseInt(p[2])} de ${m[parseInt(p[1])-1]} de ${p[0]}`;}
+function fmtDateWeekday(d){if(!d)return'';const dt=new Date(d+'T12:00:00');return['Domingo','Segunda','Ter\u00e7a','Quarta','Quinta','Sexta','S\u00e1bado'][dt.getDay()];}
+function numVal(id,def=0){const el=document.getElementById(id);if(!el)return def;const v=parseFloat(el.value);return isNaN(v)?def:v;}
+function strVal(id,def=''){const el=document.getElementById(id);if(!el)return def;return el.value||def;}
+function classHasData(d){if(!d)return false;return FIELDS.some(f=>parseFloat(d[f]||0)!==0);}
+function normStr(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^\w\s]/g,'').toLowerCase().replace(/\s+/g,' ').trim();}
+
+function fuzzyMatchClass(label,classes){
+  const nl=normStr(label);if(!nl||nl.length<2)return null;
+  if(/^(total|classe|matric|ausent|present|visit|bibl|revis|oferta|data|cong|domin|trimes|sede)/.test(nl))return null;
+  for(const cl of classes)if(normStr(cl.label)===nl)return cl;
+  for(const cl of classes)if(normStr(cl.key)===nl)return cl;
+  for(const cl of classes){const ncl=normStr(cl.label);if(nl.startsWith(ncl)||ncl.startsWith(nl))return cl;}
+  const kws=[
+    ['adultos irma','adultosIrmas'],['adulto irma','adultosIrmas'],['adultas','adultosIrmas'],
+    ['adultos irmao','adultosIrmaos'],['adulto irmao','adultosIrmaos'],['adultos irmaos','adultosIrmaos'],
+    ['pre adolescentes','preAdoles'],['preadolescentes','preAdoles'],['pre-adolescentes','preAdoles'],
+    ['jardim infancia','jardim'],['jardim da infancia','jardim'],
+  ];
+  for(const[kw,key]of kws){if(nl.includes(normStr(kw))){const cl=classes.find(c=>c.key===key);if(cl)return cl;}}
+  const nlW=nl.split(' ').filter(w=>w.length>3);
+  for(const cl of classes){const clW=normStr(cl.label).split(' ').filter(w=>w.length>3);const ov=nlW.filter(w=>clW.includes(w));if(ov.length>0&&ov.length>=Math.min(nlW.length,clW.length))return cl;}
+  return null;
+}
+
+// ══ NAVIGATION ══
+const App={
+  navigate(tab){
+    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+    document.getElementById('sec-'+tab).classList.add('active');
+    document.querySelectorAll('.nav-tab:not(.nav-tab-avisos)').forEach((b,i)=>{b.classList.toggle('active',['report','saved','stats','calendar'][i]===tab);});
+    document.querySelectorAll('.mob-tab').forEach(b=>b.classList.remove('active'));
+    const mob=document.getElementById('mob-'+tab);if(mob)mob.classList.add('active');
+    if(tab==='saved')SavedReports.render();
+    if(tab==='stats')Statistics.render();
+    if(tab==='calendar')Cal.renderMonth();
+  }
+};
+
+// ══ REPORT FORM ══
+const ReportForm={
+  init(){
+    document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
+    this.autoTrimestre();this.buildTable();this.setupPrevSunday();
+    document.getElementById('f-date').addEventListener('change',()=>this.autoTrimestre());
+    document.getElementById('f-trimestre').addEventListener('change',()=>this.updateInfo());
+    document.getElementById('f-year').addEventListener('change',()=>this.updateInfo());
+  },
+  autoTrimestre(){
+    const d=document.getElementById('f-date').value;if(!d)return;
+    const m=new Date(d+'T12:00:00').getMonth();
+    document.getElementById('f-trimestre').value=m<3?'1\u00ba Trimestre':m<6?'2\u00ba Trimestre':m<9?'3\u00ba Trimestre':'4\u00ba Trimestre';
+    document.getElementById('f-year').value=new Date(d+'T12:00:00').getFullYear();
+    this.updateInfo();
+  },
+  updateInfo(){document.getElementById('trimester-info').textContent=`\ud83d\udcc5 ${strVal('f-trimestre','2\u00ba Trimestre')} de ${strVal('f-year','2026')} \u00b7 ADI Macatuba`;},
+  buildTable(){
+    const CLASSES=getClasses();const tbody=document.getElementById('report-tbody');tbody.innerHTML='';
+    CLASSES.forEach(cl=>{
+      const tr=document.createElement('tr');tr.id='row-'+cl.key;
+      tr.innerHTML=`<td>${cl.label}</td>
+        <td><input type="number" min="0" id="${cl.key}-matriculados" value="0" oninput="ReportForm.calc('${cl.key}')"></td>
+        <td><input type="number" min="0" id="${cl.key}-ausentes" value="0" oninput="ReportForm.calc('${cl.key}')"></td>
+        <td><input type="number" min="0" id="${cl.key}-presentes" value="0" readonly></td>
+        <td><input type="number" min="0" id="${cl.key}-visitantes" value="0" oninput="ReportForm.calc('${cl.key}')"></td>
+        <td><input type="number" min="0" id="${cl.key}-total" value="0" readonly></td>
+        <td><input type="number" min="0" id="${cl.key}-biblia" value="0" oninput="ReportForm.calcTotal()"></td>
+        <td><input type="number" min="0" id="${cl.key}-revista" value="0" oninput="ReportForm.calcTotal()"></td>
+        <td><input type="number" min="0" step="0.01" id="${cl.key}-oferta" value="0" oninput="ReportForm.calcTotal()"></td>`;
+      tbody.appendChild(tr);
+    });
+    const totRow=document.createElement('tr');totRow.className='total-row';
+    totRow.innerHTML=`<td>TOTAL GERAL</td>${FIELDS.map(f=>`<td><input type="number" id="tot-${f}" value="${f==='oferta'?'0.00':'0'}" readonly></td>`).join('')}`;
+    tbody.appendChild(totRow);
+  },
+  setupPrevSunday(){
+    const r=DB.getReports()[0];
+    if(r)FIELDS.forEach(f=>{const el=document.getElementById('prev-'+f);if(el)el.value=r.totals?.[f]||0;});
+    const calcPrev=()=>{const m=numVal('prev-matriculados'),a=numVal('prev-ausentes'),v=numVal('prev-visitantes'),p=Math.max(0,m-a);document.getElementById('prev-presentes').value=p;document.getElementById('prev-total').value=p+v;};
+    ['prev-matriculados','prev-ausentes','prev-visitantes'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('input',calcPrev);});
+  },
+  calc(key){
+    const m=numVal(`${key}-matriculados`),a=numVal(`${key}-ausentes`),v=numVal(`${key}-visitantes`),p=Math.max(0,m-a);
+    const pe=document.getElementById(`${key}-presentes`),te=document.getElementById(`${key}-total`);
+    if(pe)pe.value=p;if(te)te.value=p+v;this.calcTotal();
+  },
+  calcTotal(){
+    const CLASSES=getClasses();const tot={};FIELDS.forEach(f=>tot[f]=0);
+    CLASSES.forEach(cl=>FIELDS.forEach(f=>tot[f]+=numVal(`${cl.key}-${f}`)));
+    FIELDS.forEach(f=>{const el=document.getElementById(`tot-${f}`);if(el)el.value=f==='oferta'?tot[f].toFixed(2):tot[f];});
+  },
+  collectData(){const CLASSES=getClasses();const d={};CLASSES.forEach(cl=>{d[cl.key]={};FIELDS.forEach(f=>d[cl.key][f]=numVal(`${cl.key}-${f}`));});return d;},
+  getTotals(){const t={};FIELDS.forEach(f=>t[f]=numVal(`tot-${f}`));return t;},
+  getPrev(){return{matriculados:numVal('prev-matriculados'),ausentes:numVal('prev-ausentes'),presentes:numVal('prev-presentes'),visitantes:numVal('prev-visitantes'),total:numVal('prev-total'),biblia:numVal('prev-biblia'),revista:numVal('prev-revista'),oferta:numVal('prev-oferta')};},
+  buildReport(){return{id:uid(),date:strVal('f-date'),trimestre:strVal('f-trimestre'),year:parseInt(strVal('f-year')),congregacao:strVal('f-congregacao','Macatuba'),classes:this.collectData(),totals:this.getTotals(),domingoAnterior:this.getPrev(),savedAt:new Date().toISOString()};},
+  save(){const r=this.buildReport();if(!r.date){showToast('Informe a data do domingo!');return;}DB.saveReport(r);showToast('\u2705 Relat\u00f3rio salvo com sucesso!');},
+  downloadPDF(){PDFGen.generateReport(this.buildReport());},
+  downloadExcel(){ExcelExport.generateReport(this.buildReport());},
+  clear(){const CLASSES=getClasses();CLASSES.forEach(cl=>FIELDS.forEach(f=>{const el=document.getElementById(`${cl.key}-${f}`);if(el)el.value=0;}));this.calcTotal();showToast('Formul\u00e1rio limpo.');}
+};
+
+// ══ SAVED REPORTS ══
+const SavedReports={
+  render(){
+    const q=(document.getElementById('search-reports')?.value||'').toLowerCase();
+    let rpts=DB.getReports();
+    if(q)rpts=rpts.filter(r=>fmtDate(r.date).includes(q)||r.trimestre?.toLowerCase().includes(q)||(r.year+'').includes(q));
+    const el=document.getElementById('saved-list');
+    if(!rpts.length){el.innerHTML=`<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><p>Nenhum relat\u00f3rio salvo ainda.</p></div>`;return;}
+    el.innerHTML=`<div class="report-list">${rpts.map(r=>this.renderItem(r)).join('')}</div>`;
+  },
+  renderItem(r){
+    return`<div class="report-item">
+      <div class="report-item-info">
+        <div class="report-item-date">${fmtDateWeekday(r.date)}, ${fmtDate(r.date)}</div>
+        <div class="report-item-meta"><span class="badge badge-primary">${r.trimestre||''} de ${r.year||''}</span> &nbsp;Presentes: <strong>${r.totals?.presentes||0}</strong> &middot; Visitantes: <strong>${r.totals?.visitantes||0}</strong> &middot; Oferta: <strong>R$ ${(r.totals?.oferta||0).toFixed(2)}</strong></div>
+      </div>
+      <div class="report-item-actions">
+        <button class="btn btn-outline btn-sm" onclick="SavedReports.view('${r.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Ver</button>
+        <button class="btn btn-accent btn-sm" onclick="SavedReports.pdf('${r.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14"><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>PDF</button>
+        <button class="btn btn-excel btn-sm" onclick="SavedReports.excel('${r.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/><path d="M3 9h18"/></svg>Excel</button>
+        <button class="btn btn-danger btn-sm" onclick="SavedReports.del('${r.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+      </div>
+    </div>`;
+  },
+  view(id){
+    const r=DB.getReports().find(x=>x.id===id);if(!r)return;
+    document.getElementById('modal-report-title').textContent=`Relat\u00f3rio \u2014 ${fmtDate(r.date)}`;
+    document.getElementById('modal-report-body').innerHTML=this.renderDetail(r);
+    document.getElementById('modal-report-pdf-btn').onclick=()=>PDFGen.generateReport(r);
+    document.getElementById('modal-report-excel-btn').onclick=()=>ExcelExport.generateReport(r);
+    openModal('modal-view-report');
+  },
+  renderDetail(r){
+    const CLASSES=getClasses();
+    const active=CLASSES.filter(cl=>classHasData(r.classes?.[cl.key]));
+    Object.keys(r.classes||{}).forEach(k=>{if(classHasData(r.classes[k])&&!active.find(c=>c.key===k))active.push({key:k,label:k.toUpperCase()});});
+    const rows=active.map(cl=>{const d=r.classes[cl.key]||{};return`<tr><td>${cl.label}</td><td>${d.matriculados||0}</td><td>${d.ausentes||0}</td><td>${d.presentes||0}</td><td>${d.visitantes||0}</td><td>${d.total||0}</td><td>${d.biblia||0}</td><td>${d.revista||0}</td><td>R$${(d.oferta||0).toFixed(2)}</td></tr>`;}).join('');
+    const t=r.totals||{},p=r.domingoAnterior||{};
+    const note=active.length<CLASSES.length?`<p style="font-size:0.73rem;color:var(--text-muted);margin-top:8px;">\u2139\ufe0f Classes sem dados n\u00e3o s\u00e3o exibidas.</p>`:'';
+    return`<p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:12px;">${r.trimestre} de ${r.year} \u00b7 ${r.congregacao||'Macatuba'}</p>
+    <div style="overflow-x:auto;"><table class="report-detail-table">
+      <thead><tr><th>Classe</th><th>Matric.</th><th>Ausentes</th><th>Presentes</th><th>Visitantes</th><th>Total</th><th>B\u00edblia</th><th>Revista</th><th>Oferta</th></tr></thead>
+      <tbody>${rows}
+        <tr style="background:var(--primary);color:#fff;font-weight:700;"><td>TOTAL GERAL</td><td>${t.matriculados||0}</td><td>${t.ausentes||0}</td><td>${t.presentes||0}</td><td>${t.visitantes||0}</td><td>${t.total||0}</td><td>${t.biblia||0}</td><td>${t.revista||0}</td><td>R$${(t.oferta||0).toFixed(2)}</td></tr>
+        <tr style="background:#f0f4fa;font-style:italic;"><td>Dom. Anterior</td><td>${p.matriculados||0}</td><td>${p.ausentes||0}</td><td>${p.presentes||0}</td><td>${p.visitantes||0}</td><td>${p.total||0}</td><td>${p.biblia||0}</td><td>${p.revista||0}</td><td>R$${(p.oferta||0).toFixed(2)}</td></tr>
+      </tbody></table></div>${note}`;
+  },
+  pdf(id){const r=DB.getReports().find(x=>x.id===id);if(r)PDFGen.generateReport(r);},
+  excel(id){const r=DB.getReports().find(x=>x.id===id);if(r)ExcelExport.generateReport(r);},
+  del(id){if(!confirm('Excluir este relat\u00f3rio? N\u00e3o pode ser desfeito.'))return;DB.deleteReport(id);this.render();showToast('Relat\u00f3rio exclu\u00eddo.');}
+};
+</script>
+<script>
+// ══ STATISTICS ══
+const Statistics={
+  period:'month',chartInstances:{},
+  setPeriod(p,btn){
+    this.period=p;
+    document.querySelectorAll('[data-period]').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
+    document.getElementById('stats-month').style.display=p==='year'?'none':'';
+    this.render();
+  },
+  getFiltered(){
+    const yr=parseInt(document.getElementById('stats-year')?.value||2026);
+    const mo=parseInt(document.getElementById('stats-month')?.value||new Date().getMonth());
+    return DB.getReports().filter(r=>{
+      if(!r.date)return false;const d=new Date(r.date+'T12:00:00');if(d.getFullYear()!==yr)return false;
+      if(this.period==='month')return d.getMonth()===mo;
+      if(this.period==='quarter')return Math.floor(d.getMonth()/3)===Math.floor(mo/3);
+      if(this.period==='semester')return(d.getMonth()<6?0:1)===(mo<6?0:1);
+      return true;
+    }).sort((a,b)=>a.date.localeCompare(b.date));
+  },
+  getPeriodLabel(){
+    const yr=document.getElementById('stats-year')?.value||2026;const mo=parseInt(document.getElementById('stats-month')?.value||0);
+    if(this.period==='month')return`${MONTHS_PT[mo]} de ${yr}`;
+    if(this.period==='quarter')return`${Math.floor(mo/3)+1}\u00ba Trimestre de ${yr}`;
+    if(this.period==='semester')return(mo<6?'1\u00ba':'2\u00ba')+` Semestre de ${yr}`;
+    return`Ano de ${yr}`;
+  },
+  render(){
+    const rpts=this.getFiltered();
+    const empty=document.getElementById('stats-empty'),charts=document.getElementById('stats-charts'),cards=document.getElementById('stats-cards');
+    if(!rpts.length){empty.style.display='block';charts.style.display='none';cards.innerHTML='';return;}
+    empty.style.display='none';charts.style.display='';this.renderCards(rpts);this.renderCharts(rpts);
+  },
+  renderCards(rpts){
+    const avg=a=>a.length?Math.round(a.reduce((s,v)=>s+v,0)/a.length):0;
+    const sum=a=>a.reduce((s,v)=>s+v,0);
+    const pr=rpts.map(r=>r.totals?.presentes||0),vi=rpts.map(r=>r.totals?.visitantes||0),
+          of=rpts.map(r=>r.totals?.oferta||0),to=rpts.map(r=>r.totals?.total||0);
+    document.getElementById('stats-cards').innerHTML=`
+      <div class="stat-card"><div class="stat-label">M\u00e9dia Presentes</div><div class="stat-value">${avg(pr)}</div><div class="stat-sub">por domingo (${rpts.length} dom.)</div></div>
+      <div class="stat-card accent"><div class="stat-label">M\u00e9dia Total c/ Visit.</div><div class="stat-value">${avg(to)}</div><div class="stat-sub">incluindo visitantes</div></div>
+      <div class="stat-card"><div class="stat-label">Total Visitantes</div><div class="stat-value">${sum(vi)}</div><div class="stat-sub">no per\u00edodo</div></div>
+      <div class="stat-card accent"><div class="stat-label">Total Ofertas</div><div class="stat-value">R$${sum(of).toFixed(2)}</div><div class="stat-sub">arrecadado</div></div>
+      <div class="stat-card"><div class="stat-label">Maior Presen\u00e7a</div><div class="stat-value">${Math.max(...pr)||0}</div><div class="stat-sub">recorde do per\u00edodo</div></div>
+      <div class="stat-card"><div class="stat-label">Menor Presen\u00e7a</div><div class="stat-value">${Math.min(...pr)||0}</div><div class="stat-sub">m\u00ednimo do per\u00edodo</div></div>`;
+  },
+  renderCharts(rpts){
+    const CLASSES=getClasses();const labels=rpts.map(r=>fmtDate(r.date));
+    const c={p:'#1d3461',a:'#c59b2f',g:'#2d6a4f'};
+    this.mkChart('chart-attendance','line',{labels,datasets:[
+      {label:'Presentes',data:rpts.map(r=>r.totals?.presentes||0),borderColor:c.p,backgroundColor:'rgba(29,52,97,0.1)',tension:0.3,fill:true},
+      {label:'Total c/ Visitantes',data:rpts.map(r=>r.totals?.total||0),borderColor:c.a,tension:0.3,fill:false,borderDash:[5,3]}
+    ]});
+    const lastR=rpts[rpts.length-1];
+    const activeCls=CLASSES.filter(cl=>classHasData(lastR.classes?.[cl.key]));
+    this.mkChart('chart-classes','bar',{
+      labels:activeCls.map(cl=>cl.label.split('(')[0].trim().substring(0,16)),
+      datasets:[{label:'Presentes',data:activeCls.map(cl=>lastR.classes?.[cl.key]?.presentes||0),backgroundColor:c.p,borderRadius:5}]
+    });
+    this.mkChart('chart-bibles','bar',{labels,datasets:[
+      {label:'B\u00edblias',data:rpts.map(r=>r.totals?.biblia||0),backgroundColor:c.p,borderRadius:4},
+      {label:'Revistas',data:rpts.map(r=>r.totals?.revista||0),backgroundColor:c.a,borderRadius:4}
+    ]});
+    this.mkChart('chart-offerings','bar',{labels,datasets:[{label:'Oferta (R$)',data:rpts.map(r=>r.totals?.oferta||0),backgroundColor:c.g,borderRadius:5}]});
+  },
+  mkChart(id,type,data){
+    if(this.chartInstances[id])this.chartInstances[id].destroy();
+    const ctx=document.getElementById(id);if(!ctx)return;
+    this.chartInstances[id]=new Chart(ctx,{type,data,options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{family:'Plus Jakarta Sans',size:11}}}},scales:{x:{ticks:{font:{family:'Plus Jakarta Sans',size:10},maxRotation:45}},y:{ticks:{font:{family:'Plus Jakarta Sans',size:10}}}}}});
+  },
+  downloadPDF(){const rpts=this.getFiltered();if(!rpts.length){showToast('Nenhum dado para exportar.');return;}PDFGen.generateStats(rpts,this.getPeriodLabel(),this.chartInstances);}
+};
+
+// ══ CALENDAR ══
+const Cal={
+  month:new Date().getMonth(),year:new Date().getFullYear(),selectedDate:null,selectedColor:'#1d3461',
+  init(){document.getElementById('cal-month-sel').value=this.month;document.getElementById('cal-year-sel').value=this.year;this.renderMonth();},
+  renderMonth(){
+    this.month=parseInt(document.getElementById('cal-month-sel').value);
+    this.year=parseInt(document.getElementById('cal-year-sel').value);
+    document.getElementById('cal-month-label').textContent=`${MONTHS_PT[this.month]} de ${this.year}`;
+    const events=DB.getEvents(),today=new Date().toISOString().split('T')[0];
+    const firstDay=new Date(this.year,this.month,1).getDay(),daysInMonth=new Date(this.year,this.month+1,0).getDate(),daysInPrev=new Date(this.year,this.month,0).getDate();
+    const container=document.getElementById('cal-days');container.innerHTML='';let cells=[];
+    for(let i=firstDay-1;i>=0;i--)cells.push({day:daysInPrev-i,other:true});
+    for(let d=1;d<=daysInMonth;d++){const ds=`${this.year}-${String(this.month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;cells.push({day:d,other:false,date:ds,events:events.filter(e=>e.date===ds),isToday:ds===today});}
+    while(cells.length%7!==0)cells.push({day:0,other:true});if(cells.length>42)cells=cells.slice(0,42);
+    cells.forEach(c=>{
+      const div=document.createElement('div');
+      div.className='cal-day'+(c.other?' other-month':'')+(c.isToday?' today':'')+(c.events?.length?' has-events':'');
+      const n=document.createElement('div');n.className='day-num';n.textContent=c.day||'';div.appendChild(n);
+      if(c.events){c.events.slice(0,2).forEach(ev=>{const dot=document.createElement('div');dot.className='cal-event-dot';dot.style.background=ev.color||'#1d3461';dot.textContent=ev.title||'Evento';div.appendChild(dot);});if(c.events.length>2){const m=document.createElement('div');m.className='cal-event-dot';m.style.background='#999';m.textContent=`+${c.events.length-2}`;div.appendChild(m);}}
+      if(!c.other&&c.date)div.onclick=()=>this.selectDay(c.date);
+      container.appendChild(div);
+    });
+  },
+  selectDay(date){
+    this.selectedDate=date;const panel=document.getElementById('cal-events-panel');panel.style.display='block';
+    const d=new Date(date+'T12:00:00');const days=['Domingo','Segunda-feira','Ter\u00e7a-feira','Quarta-feira','Quinta-feira','Sexta-feira','S\u00e1bado'];
+    document.getElementById('cal-selected-date-label').textContent=`${days[d.getDay()]}, ${fmtDate(date)}`;
+    this.renderEvents(date);panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+  },
+  renderEvents(date){
+    const evts=DB.getEvents().filter(e=>e.date===date);const list=document.getElementById('cal-events-list');
+    if(!evts.length){list.innerHTML=`<p style="color:var(--text-muted);font-size:0.85rem;text-align:center;padding:12px 0;">Nenhum evento neste dia.</p>`;return;}
+    list.innerHTML=evts.map(ev=>`<div style="display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);">
+      <div style="width:10px;height:10px;border-radius:50%;background:${ev.color||'#1d3461'};margin-top:5px;flex-shrink:0;"></div>
+      <div style="flex:1;"><div style="font-weight:600;font-size:0.88rem;">${ev.title||''}</div>${ev.desc?`<div style="font-size:0.8rem;color:var(--text-muted);margin-top:3px;">${ev.desc}</div>`:''}</div>
+      <button class="btn btn-danger btn-sm btn-icon" onclick="Cal.deleteEvent('${ev.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+    </div>`).join('');
+  },
+  deleteEvent(id){DB.deleteEvent(id);this.renderMonth();if(this.selectedDate)this.renderEvents(this.selectedDate);showToast('Evento exclu\u00eddo.');},
+  openAddEvent(){if(!this.selectedDate){showToast('Selecione um dia no calend\u00e1rio.');return;}document.getElementById('evt-title').value='';document.getElementById('evt-desc').value='';document.querySelectorAll('.color-opt').forEach(o=>o.style.border='2px solid transparent');document.querySelector('.color-opt[data-color="#1d3461"]').style.border='2px solid #fff';this.selectedColor='#1d3461';document.getElementById('modal-event-title').textContent=`Evento em ${fmtDate(this.selectedDate)}`;openModal('modal-event');},
+  selectColor(el){document.querySelectorAll('.color-opt').forEach(o=>o.style.border='2px solid transparent');el.style.border='2px solid #333';this.selectedColor=el.dataset.color;},
+  saveEvent(){const title=document.getElementById('evt-title').value.trim();if(!title){showToast('Informe um t\u00edtulo.');return;}DB.saveEvent({id:uid(),date:this.selectedDate,title,desc:document.getElementById('evt-desc').value.trim(),color:this.selectedColor});closeModal('modal-event');this.renderMonth();this.renderEvents(this.selectedDate);showToast('\u2705 Evento salvo!');},
+  prevMonth(){let m=this.month-1,y=this.year;if(m<0){m=11;y--;}document.getElementById('cal-month-sel').value=m;document.getElementById('cal-year-sel').value=y;this.renderMonth();document.getElementById('cal-events-panel').style.display='none';},
+  nextMonth(){let m=this.month+1,y=this.year;if(m>11){m=0;y++;}document.getElementById('cal-month-sel').value=m;document.getElementById('cal-year-sel').value=y;this.renderMonth();document.getElementById('cal-events-panel').style.display='none';},
+  goToday(){const n=new Date();document.getElementById('cal-month-sel').value=n.getMonth();document.getElementById('cal-year-sel').value=n.getFullYear();this.renderMonth();}
+};
+
+// ══ CLASS MANAGER ══
+const ClassManager={
+  open(){this.render();openModal('modal-classes');},
+  render(){
+    const classes=getClasses();const list=document.getElementById('class-manager-list');
+    if(!classes.length){list.innerHTML='<p style="color:var(--text-muted);text-align:center;padding:16px;">Nenhuma classe cadastrada.</p>';return;}
+    list.innerHTML=classes.map((cl,i)=>`
+      <div class="class-list-item">
+        <div class="class-list-item-info">
+          <div class="class-list-item-label">${cl.label}</div>
+          <div class="class-list-item-key">chave: <code style="font-family:monospace;font-size:0.78em;background:var(--surface2);padding:1px 4px;border-radius:3px;">${cl.key}</code></div>
+        </div>
+        <div class="class-list-item-actions">
+          <button class="btn btn-outline btn-icon btn-sm" onclick="ClassManager.moveUp(${i})" title="Mover para cima" ${i===0?'disabled style="opacity:.35"':''}>&#9650;</button>
+          <button class="btn btn-outline btn-icon btn-sm" onclick="ClassManager.moveDown(${i})" title="Mover para baixo" ${i===classes.length-1?'disabled style="opacity:.35"':''}>&#9660;</button>
+          <button class="btn btn-danger btn-icon btn-sm" onclick="ClassManager.remove(${i})" title="Excluir">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+          </button>
+        </div>
+      </div>`).join('');
+  },
+  add(){
+    const label=document.getElementById('new-class-label').value.trim();
+    if(!label){showToast('Informe o nome da classe.');return;}
+    const key=labelToKey(label);if(!key){showToast('Nome inv\u00e1lido.');return;}
+    const classes=getClasses();if(classes.some(c=>c.key===key)){showToast('Classe j\u00e1 existe.');return;}
+    classes.push({key,label});saveClasses(classes);document.getElementById('new-class-label').value='';
+    this.render();showToast(`\u2705 "${label}" adicionada!`);
+  },
+  remove(i){if(!confirm('Excluir esta classe? Dados salvos em relat\u00f3rios anteriores n\u00e3o ser\u00e3o perdidos.'))return;const c=getClasses();c.splice(i,1);saveClasses(c);this.render();showToast('Classe removida.');},
+  moveUp(i){if(i===0)return;const c=getClasses();[c[i-1],c[i]]=[c[i],c[i-1]];saveClasses(c);this.render();},
+  moveDown(i){const c=getClasses();if(i>=c.length-1)return;[c[i],c[i+1]]=[c[i+1],c[i]];saveClasses(c);this.render();},
+  reset(){if(!confirm('Restaurar classes padr\u00e3o? Personaliza\u00e7\u00f5es ser\u00e3o perdidas.'))return;localStorage.removeItem('ebd_classes');this.render();showToast('Classes restauradas ao padr\u00e3o.');},
+  applyAndClose(){closeModal('modal-classes');ReportForm.buildTable();ReportForm.calcTotal();showToast('\u2705 Tabela de classes atualizada!');}
+};
+
+// ══ IMPORT MANAGER ══
+const ImportManager={
+  parsedData:null,
+  open(){
+    const fi=document.getElementById('import-file-input');
+    if(fi)fi.value='';
+    document.getElementById('import-preview').innerHTML='';
+    document.getElementById('import-status').textContent='';
+    document.getElementById('btn-apply-import').style.display='none';
+    this.parsedData=null;
+    openModal('modal-import');
+  },
+  onDragOver(e){e.preventDefault();document.getElementById('import-dropzone').classList.add('drag-over');},
+  onDragLeave(){document.getElementById('import-dropzone').classList.remove('drag-over');},
+  onDrop(e){e.preventDefault();document.getElementById('import-dropzone').classList.remove('drag-over');const f=e.dataTransfer?.files?.[0];if(f)this.handleFile(f);},
+  async handleFile(file){
+    if(!file)return;
+    const ext=file.name.split('.').pop().toLowerCase();
+    const statusEl=document.getElementById('import-status');
+    statusEl.innerHTML=`<span class="import-spinner"></span> Lendo <strong>${file.name}</strong>...`;
+    document.getElementById('import-preview').innerHTML='';
+    document.getElementById('btn-apply-import').style.display='none';
+    this.parsedData=null;
+    try{
+      if(ext==='xlsx'||ext==='xls')await this.parseExcel(file);
+      else if(ext==='pdf'){statusEl.textContent='❌ Importação de PDF foi removida. Envie apenas planilhas .xlsx ou .xls.';return;}
+      else statusEl.textContent='\u274c Formato n\u00e3o suportado. Use .xlsx, .xls ou .pdf';
+    }catch(err){document.getElementById('import-status').textContent='\u274c Erro: '+(err.message||'Falha ao processar');console.error(err);}
+  },
+  async loadXLSX(){
+    if(typeof XLSX!=='undefined')return true;
+    document.getElementById('import-status').innerHTML='<span class="import-spinner"></span> Carregando biblioteca...';
+    const cdns=['https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js','https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js','https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'];
+    for(const src of cdns){
+      try{
+        await new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s);});
+        if(typeof XLSX!=='undefined')return true;
+      }catch{}
+    }
+    return false;
+  },
+  async parseExcel(file){
+    const ok=await this.loadXLSX();
+    if(!ok){document.getElementById('import-status').textContent='\u274c N\u00e3o foi poss\u00edvel carregar a biblioteca XLSX. Verifique sua conex\u00e3o com a internet.';return;}
+    const buf=await file.arrayBuffer();
+    const wb=XLSX.read(buf,{type:'array'});
+    const ws=wb.Sheets[wb.SheetNames[0]];
+    const aoa=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+    this.parsedData=this.parseAoA(aoa);this.showPreview();
+  },
+  
+  parseAoA(aoa){
+    const result={date:'',trimestre:'',year:null,classes:{},domingoAnterior:{}};
+    const classes=getClasses();
+    const n=s=>normStr(String(s||''));
+
+    // ── 1. Metadata from first rows (date, trimestre, year) ──
+    const MON={'janeiro':1,'fevereiro':2,'marco':3,'abril':4,'maio':5,'junho':6,'julho':7,'agosto':8,'setembro':9,'outubro':10,'novembro':11,'dezembro':12};
+    for(let i=0;i<Math.min(8,aoa.length);i++){
+      const txt=aoa[i].join(' ');
+      // dd/mm/yyyy
+      const dm=txt.match(/(\d{2})[\/\-](\d{2})[\/\-](\d{4})/);
+      if(dm&&!result.date)result.date=`${dm[3]}-${dm[2].padStart(2,'0')}-${dm[1].padStart(2,'0')}`;
+      // "25 DE MAIO DE 2026"
+      if(!result.date){const dm2=txt.match(/(\d{1,2})\s+DE\s+(\w+)\s+DE\s+(\d{4})/i);if(dm2){const mo=MON[n(dm2[2])];if(mo)result.date=`${dm2[3]}-${String(mo).padStart(2,'0')}-${dm2[1].padStart(2,'0')}`;}}
+      const tm=txt.match(/([1-4][º°o\.]\s*Trimestre)/i);
+      if(tm&&!result.trimestre)result.trimestre=tm[1].replace(/[o°\.]/i,'º');
+      const ym=txt.match(/\b(20\d{2})\b/);
+      if(ym&&!result.year)result.year=parseInt(ym[1]);
+    }
+
+    // ── 2. Find header row → build column map by name ──
+    // Maps normalised header fragment → internal field name
+    const ALIASES=[
+      ['classe','labelCol'],['turma','labelCol'],
+      ['matricul','matriculados'],['matric','matriculados'],
+      ['ausent','ausentes'],
+      ['present','presentes'],
+      ['visitant','visitantes'],
+      ['total','total'],
+      ['bibli','biblia'],['bib','biblia'],
+      ['revist','revista'],['rev','revista'],
+      ['ofert','oferta'],
+    ];
+    let colMap=null, headerRowIdx=-1;
+    for(let i=0;i<Math.min(12,aoa.length);i++){
+      const row=aoa[i];const map={};let hasLabel=false,hasMatric=false;
+      row.forEach((cell,ci)=>{
+        const cn=n(cell);if(!cn)return;
+        for(const[alias,field] of ALIASES){
+          if(cn.includes(alias)){
+            if(map[field]===undefined)map[field]=ci;
+            if(field==='labelCol')hasLabel=true;
+            if(field==='matriculados')hasMatric=true;
+            break;
+          }
+        }
+      });
+      if(hasLabel&&hasMatric){colMap=map;headerRowIdx=i;break;}
+    }
+    // Fallback: assume standard positional layout (A=classe, B=matric, ...)
+    if(!colMap){colMap={labelCol:0,matriculados:1,ausentes:2,presentes:3,visitantes:4,total:5,biblia:6,revista:7,oferta:8};headerRowIdx=-1;}
+
+    const lc=colMap.labelCol!==undefined?colMap.labelCol:0;
+    const gn=(row,f)=>{const ci=colMap[f];if(ci===undefined||row[ci]===undefined||row[ci]==='')return 0;return parseFloat(String(row[ci]).replace(',','.'))||0;};
+
+    // ── 3. Read data rows ──
+    aoa.forEach((row,ri)=>{
+      if(ri<=headerRowIdx)return;
+      const label=String(row[lc]||'').trim();if(!label)return;
+      const ul=label.toUpperCase();
+      if(ul.includes('ANTERIOR')||ul.includes('DOM. ANT')){
+        result.domingoAnterior={matriculados:gn(row,'matriculados'),ausentes:gn(row,'ausentes'),presentes:gn(row,'presentes'),visitantes:gn(row,'visitantes'),total:gn(row,'total'),biblia:gn(row,'biblia'),revista:gn(row,'revista'),oferta:gn(row,'oferta')};
+        return;
+      }
+      if(ul.includes('TOTAL')&&!fuzzyMatchClass(label,classes))return;
+      if(/^(classe|turma|matric|ausent|present|visit|bibl|revis|oferta|data|cong|domin|trimes)/i.test(label))return;
+      const matched=fuzzyMatchClass(label,classes);
+      if(matched&&!result.classes[matched.key]){
+        result.classes[matched.key]={matriculados:gn(row,'matriculados'),ausentes:gn(row,'ausentes'),presentes:gn(row,'presentes'),visitantes:gn(row,'visitantes'),total:gn(row,'total'),biblia:gn(row,'biblia'),revista:gn(row,'revista'),oferta:gn(row,'oferta')};
+      }
+    });
+    return result;
+  },
+  showPreview(){
+    if(!this.parsedData)return;
+    const d=this.parsedData;const classes=getClasses();
+    const keys=Object.keys(d.classes||{}).filter(k=>classHasData(d.classes[k]));
+    let html='<div style="margin-top:12px;padding:14px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border);">';
+    if(d.date)html+=`<p style="font-size:0.85rem;margin-bottom:5px;"><strong>Data:</strong> ${fmtDate(d.date)}</p>`;
+    if(d.trimestre)html+=`<p style="font-size:0.85rem;margin-bottom:10px;"><strong>Trimestre:</strong> ${d.trimestre}${d.year?' de '+d.year:''}</p>`;
+    if(keys.length){
+      html+=`<p style="font-size:0.76rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:7px;">Classes detectadas (${keys.length}):</p><div style="display:flex;flex-wrap:wrap;gap:6px;">`;
+      keys.forEach(k=>{const cl=classes.find(c=>c.key===k)||{label:k};html+=`<span class="badge badge-green">${cl.label}</span>`;});
+      html+='</div>';
+    }else{html+=`<p style="color:#c0392b;font-size:0.85rem;">\u26a0\ufe0f Nenhuma classe identificada. Verifique o formato do arquivo.</p>`;}
+    html+='</div>';
+    document.getElementById('import-preview').innerHTML=html;
+    document.getElementById('import-status').textContent=keys.length?`\u2705 ${keys.length} classe(s) identificada(s)!`:'\u26a0\ufe0f Dados n\u00e3o identificados.';
+    document.getElementById('btn-apply-import').style.display=keys.length?'':'none';
+  },
+  apply(){
+    if(!this.parsedData)return;
+    const d=this.parsedData;const classes=getClasses();
+    if(d.date)document.getElementById('f-date').value=d.date;
+    if(d.trimestre)document.getElementById('f-trimestre').value=d.trimestre;
+    if(d.year)document.getElementById('f-year').value=d.year;
+    if(d.date)ReportForm.autoTrimestre();else ReportForm.updateInfo();
+    classes.forEach(cl=>{
+      const cd=d.classes?.[cl.key];if(!cd)return;
+      ['matriculados','ausentes','visitantes','biblia','revista','oferta'].forEach(f=>{const el=document.getElementById(`${cl.key}-${f}`);if(el)el.value=cd[f]||0;});
+      ReportForm.calc(cl.key);
+    });
+    if(d.domingoAnterior&&Object.values(d.domingoAnterior).some(v=>v!==0)){
+      const p=d.domingoAnterior;
+      ['matriculados','ausentes','visitantes','biblia','revista','oferta'].forEach(f=>{const el=document.getElementById('prev-'+f);if(el)el.value=p[f]||0;});
+    }
+    ReportForm.calcTotal();closeModal('modal-import');App.navigate('report');showToast('\u2705 Dados importados com sucesso!');
+  },
+};
+</script>
+<script>
+// ══ EXCEL EXPORT ══
+const ExcelExport={
+  _x:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>',
+  _e(s){return String(s===undefined||s===null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');},
+  _ct(){return this._x+'\n<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">\n<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>\n<Default Extension="xml" ContentType="application/xml"/>\n<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>\n<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>\n<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>\n</Types>';},
+  _rr(){return this._x+'\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">\n<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>\n</Relationships>';},
+  _wb(n){return this._x+'\n<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">\n<bookViews><workbookView activeTab="0"/></bookViews>\n<sheets><sheet name="'+this._e(n)+'" sheetId="1" r:id="rId1"/></sheets>\n</workbook>';},
+  _wbr(){return this._x+'\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">\n<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>\n<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>\n</Relationships>';},
+  _styles(){
+    return this._x+`
+<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+<numFmts count="1"><numFmt numFmtId="164" formatCode='"R$"\ #,##0.00'/></numFmts>
+<fonts count="5">
+  <font><sz val="11"/><name val="Calibri"/></font>
+  <font><b/><sz val="14"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font>
+  <font><b/><sz val="12"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font>
+  <font><b/><sz val="13"/><color rgb="FF1A1A2E"/><name val="Calibri"/></font>
+  <font><b/><sz val="11"/><color rgb="FF1A1A2E"/><name val="Calibri"/></font>
+</fonts>
+<fills count="5">
+  <fill><patternFill patternType="none"/></fill>
+  <fill><patternFill patternType="gray125"/></fill>
+  <fill><patternFill patternType="solid"><fgColor rgb="FF1D3461"/></patternFill></fill>
+  <fill><patternFill patternType="solid"><fgColor rgb="FFD4E3F7"/></patternFill></fill>
+  <fill><patternFill patternType="solid"><fgColor rgb="FFE8F0FB"/></patternFill></fill>
+</fills>
+<borders count="2">
+  <border><left/><right/><top/><bottom/><diagonal/></border>
+  <border><left style="thin"><color rgb="FFB0C4DE"/></left><right style="thin"><color rgb="FFB0C4DE"/></right><top style="thin"><color rgb="FFB0C4DE"/></top><bottom style="thin"><color rgb="FFB0C4DE"/></bottom><diagonal/></border>
+</borders>
+<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
+<cellXfs count="16">
+  <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
+  <xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>
+  <xf numFmtId="0" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>
+  <xf numFmtId="0" fontId="2" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>
+  <xf numFmtId="0" fontId="3" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="left" vertical="center"/></xf>
+  <xf numFmtId="0" fontId="4" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>
+  <xf numFmtId="0" fontId="3" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="left" vertical="center"/></xf>
+  <xf numFmtId="0" fontId="4" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>
+  <xf numFmtId="0" fontId="2" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="left" vertical="center"/></xf>
+  <xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>
+  <xf numFmtId="0" fontId="3" fillId="4" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="left" vertical="center"/></xf>
+  <xf numFmtId="0" fontId="4" fillId="4" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>
+  <xf numFmtId="164" fontId="4" fillId="0" borderId="1" xfId="0" applyFont="1" applyNumberFormat="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>
+  <xf numFmtId="164" fontId="4" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyNumberFormat="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>
+  <xf numFmtId="164" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyNumberFormat="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>
+  <xf numFmtId="164" fontId="4" fillId="4" borderId="1" xfId="0" applyFont="1" applyFill="1" applyNumberFormat="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>
+</cellXfs>
+</styleSheet>`;},
+  _ws(r){
+    const E=this._e.bind(this);const cl=r.classes||{};const prev=r.domingoAnterior||{};
+    const CLASSES=getClasses();
+    const ac=CLASSES.filter(c=>classHasData(cl[c.key]));
+    Object.keys(cl).forEach(k=>{if(classHasData(cl[k])&&!ac.find(c=>c.key===k))ac.push({key:k,label:k.toUpperCase()});});
+    const MO=['JANEIRO','FEVEREIRO','MARCO','ABRIL','MAIO','JUNHO','JULHO','AGOSTO','SETEMBRO','OUTUBRO','NOVEMBRO','DEZEMBRO'];
+    let dl='';if(r.date){const[y,m,d]=r.date.split('-');dl=`DOMINGO, ${parseInt(d)} DE ${MO[parseInt(m)-1]} DE ${y}`;}
+    const title=`RELATORIO DA ESCOLA BIBLICA DOMINICAL E.B.D - ${(r.trimestre||'').toUpperCase()} DE ${r.year||new Date().getFullYear()}.`;
+    const cong=`CONGREGACAO: ${(r.congregacao||'MACATUBA').toUpperCase()}`;
+    const sc=(ref,val,si)=>`<c r="${ref}" s="${si}" t="inlineStr"><is><t>${E(val)}</t></is></c>`;
+    const nc=(ref,val,si)=>`<c r="${ref}" s="${si}"><v>${parseFloat(val)||0}</v></c>`;
+    const fc=(ref,f,si)=>`<c r="${ref}" s="${si}"><f>${E(f)}</f></c>`;
+    const ec=(ref,si)=>`<c r="${ref}" s="${si}"/>`;
+    const C=['A','B','C','D','E','F','G','H','I'];
+    const rows=[],merges=[];
+    rows.push(`<row r="1" ht="26" customHeight="1">${sc('A1',title,1)}${C.slice(1).map(c=>ec(c+'1',1)).join('')}</row>`);merges.push('A1:I1');
+    rows.push(`<row r="2" ht="20" customHeight="1">${sc('A2',cong,1)}${C.slice(1).map(c=>ec(c+'2',1)).join('')}</row>`);merges.push('A2:I2');
+    rows.push(`<row r="3" ht="18" customHeight="1">${sc('A3',dl,2)}${C.slice(1).map(c=>ec(c+'3',2)).join('')}</row>`);merges.push('A3:I3');
+    const hd=['CLASSE','MATRIC.','AUSENTES','PRESENTES','VISITANTES','TOTAL','BIBLIA','REVISTA','OFERTA (R$)'];
+    rows.push(`<row r="4" ht="18" customHeight="1">${C.map((c,i)=>sc(c+'4',hd[i],3)).join('')}</row>`);
+    const DS=5;
+    ac.forEach((def,idx)=>{
+      const rn=DS+idx;const d=cl[def.key]||{};const alt=idx%2===1;
+      rows.push(`<row r="${rn}" ht="18" customHeight="1">${sc('A'+rn,def.label,alt?6:4)}${nc('B'+rn,d.matriculados||0,alt?7:5)}${nc('C'+rn,d.ausentes||0,alt?7:5)}${nc('D'+rn,d.presentes||0,alt?7:5)}${nc('E'+rn,d.visitantes||0,alt?7:5)}${nc('F'+rn,d.total||0,alt?7:5)}${nc('G'+rn,d.biblia||0,alt?7:5)}${nc('H'+rn,d.revista||0,alt?7:5)}${nc('I'+rn,d.oferta||0,alt?13:12)}</row>`);
+    });
+    const tR=DS+ac.length,dE=tR-1,sf=c=>`SUM(${c}${DS}:${c}${dE})`;
+    rows.push(`<row r="${tR}" ht="20" customHeight="1">${sc('A'+tR,'TOTAL GERAL',8)}${fc('B'+tR,sf('B'),9)}${fc('C'+tR,sf('C'),9)}${fc('D'+tR,sf('D'),9)}${fc('E'+tR,sf('E'),9)}${fc('F'+tR,sf('F'),9)}${fc('G'+tR,sf('G'),9)}${fc('H'+tR,sf('H'),9)}${fc('I'+tR,sf('I'),14)}</row>`);
+    const pR=tR+1;
+    rows.push(`<row r="${pR}" ht="18" customHeight="1">${sc('A'+pR,'DOMINGO ANTERIOR',10)}${nc('B'+pR,prev.matriculados||0,11)}${nc('C'+pR,prev.ausentes||0,11)}${nc('D'+pR,prev.presentes||0,11)}${nc('E'+pR,prev.visitantes||0,11)}${nc('F'+pR,prev.total||0,11)}${nc('G'+pR,prev.biblia||0,11)}${nc('H'+pR,prev.revista||0,11)}${nc('I'+pR,prev.oferta||0,15)}</row>`);
+    const mc=merges.length?`<mergeCells count="${merges.length}">${merges.map(m=>`<mergeCell ref="${m}"/>`).join('')}</mergeCells>`:'';
+    return this._x+`\n<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">\n<sheetViews><sheetView workbookViewId="0"/></sheetViews>\n<sheetFormatPr defaultRowHeight="18"/>\n<cols>\n<col min="1" max="1" width="36" customWidth="1"/>\n<col min="2" max="9" width="14" customWidth="1"/>\n</cols>\n<sheetData>${rows.join('')}</sheetData>\n${mc}\n</worksheet>`;
+  },
+  async generateReport(r){
+    if(typeof JSZip==='undefined'){showToast('\u26a0\ufe0f JSZip n\u00e3o carregado.');return;}
+    const ds=r.date?r.date.split('-').reverse().join('.'):'sem-data';
+    const zip=new JSZip();
+    zip.file('[Content_Types].xml',this._ct());
+    zip.folder('_rels').file('.rels',this._rr());
+    const xl=zip.folder('xl');
+    xl.file('workbook.xml',this._wb(ds));
+    xl.folder('_rels').file('workbook.xml.rels',this._wbr());
+    xl.folder('worksheets').file('sheet1.xml',this._ws(r));
+    xl.file('styles.xml',this._styles());
+    try{
+      const blob=await zip.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+      const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`Relatorio_EBD_${ds}.xlsx`;
+      document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+      showToast('\ud83d\udcca Excel gerado com sucesso!');
+    }catch(e){showToast('Erro ao gerar Excel: '+e.message);}
+  }
+};
+
+// ══ PDF GENERATOR ══
+const PDFGen={
+  generateReport(r){
+    const{jsPDF}=window.jspdf;const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});const W=297,M=12;
+    doc.setFillColor(29,52,97);doc.rect(0,0,W,22,'F');doc.setTextColor(255,255,255);
+    doc.setFontSize(13);doc.setFont('helvetica','bold');doc.text('RELAT\u00d3RIO DA ESCOLA B\u00cdBLICA DOMINICAL \u2014 E.B.D',W/2,9,{align:'center'});
+    doc.setFontSize(10);doc.setFont('helvetica','normal');doc.text(`${r.trimestre||''} de ${r.year||''} | CONGREGA\u00c7\u00c3O: ${(r.congregacao||'MACATUBA').toUpperCase()} | ${fmtDateWeekday(r.date).toUpperCase()}, ${fmtDateLong(r.date).toUpperCase()}`,W/2,17,{align:'center'});
+    const CLASSES=getClasses();const ac=CLASSES.filter(cl=>classHasData(r.classes?.[cl.key]));
+    Object.keys(r.classes||{}).forEach(k=>{if(classHasData(r.classes[k])&&!ac.find(c=>c.key===k))ac.push({key:k,label:k.toUpperCase()});});
+    const cols=['CLASSE','MATRIC.','AUSENTES','PRESENTES','VISITANTES','TOTAL','B\u00cdBLIA','REVISTA','OFERTA (R$)'];
+    const body=ac.map(cl=>{const d=r.classes?.[cl.key]||{};return[cl.label,d.matriculados||0,d.ausentes||0,d.presentes||0,d.visitantes||0,d.total||0,d.biblia||0,d.revista||0,(d.oferta||0).toFixed(2)];});
+    const t=r.totals||{},p=r.domingoAnterior||{};
+    body.push(['TOTAL GERAL',t.matriculados||0,t.ausentes||0,t.presentes||0,t.visitantes||0,t.total||0,t.biblia||0,t.revista||0,(t.oferta||0).toFixed(2)]);
+    body.push(['DOM. ANTERIOR',p.matriculados||0,p.ausentes||0,p.presentes||0,p.visitantes||0,p.total||0,p.biblia||0,p.revista||0,(p.oferta||0).toFixed(2)]);
+    doc.autoTable({head:[cols],body,startY:26,margin:{left:M,right:M},headStyles:{fillColor:[29,52,97],textColor:255,fontStyle:'bold',fontSize:8,halign:'center'},bodyStyles:{fontSize:8,halign:'center'},columnStyles:{0:{halign:'left',cellWidth:50}},alternateRowStyles:{fillColor:[248,247,244]},
+      didParseCell(d){if(d.row.index===body.length-2&&d.section==='body'){d.cell.styles.fillColor=[29,52,97];d.cell.styles.textColor=255;d.cell.styles.fontStyle='bold';}if(d.row.index===body.length-1&&d.section==='body'){d.cell.styles.fillColor=[240,244,250];d.cell.styles.fontStyle='italic';}}});
+    doc.setFontSize(8);doc.setTextColor(150,150,150);doc.text(`Gerado em ${new Date().toLocaleDateString('pt-BR')} \u00b7 Relat\u00f3rios EBD \u2014 ADI Macatuba`,W/2,doc.lastAutoTable.finalY+8,{align:'center'});
+    doc.save(`Relatorio_EBD_${r.date||'sem-data'}.pdf`);showToast('\ud83d\udcc4 PDF gerado!');
+  },
+  generateStats(rpts,periodLabel,charts){
+    const{jsPDF}=window.jspdf;const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});const W=210,M=14;
+    doc.setFillColor(29,52,97);doc.rect(0,0,W,24,'F');doc.setTextColor(255,255,255);
+    doc.setFontSize(14);doc.setFont('helvetica','bold');doc.text('ESTAT\u00cdSTICAS \u2014 E.B.D',W/2,10,{align:'center'});
+    doc.setFontSize(9);doc.setFont('helvetica','normal');doc.text(`${periodLabel} | ADI Macatuba | ${rpts.length} domingo(s)`,W/2,18,{align:'center'});
+    const pr=rpts.map(r=>r.totals?.presentes||0),vi=rpts.map(r=>r.totals?.visitantes||0),of=rpts.map(r=>r.totals?.oferta||0);
+    const avg=a=>a.length?Math.round(a.reduce((s,v)=>s+v,0)/a.length):0;const sum=a=>a.reduce((s,v)=>s+v,0);
+    doc.autoTable({head:[['Indicador','Valor']],body:[['M\u00e9dia de Presentes',avg(pr)],['Total de Visitantes',sum(vi)],['Maior Presen\u00e7a',Math.max(...pr)||0],['Menor Presen\u00e7a',Math.min(...pr)||0],['Total Ofertas',`R$ ${sum(of).toFixed(2)}`],['M\u00e9dia Ofertas',`R$ ${(sum(of)/(rpts.length||1)).toFixed(2)}`]],startY:30,margin:{left:M,right:M},headStyles:{fillColor:[29,52,97],textColor:255,fontStyle:'bold',fontSize:9},bodyStyles:{fontSize:9},alternateRowStyles:{fillColor:[248,247,244]}});
+    let y=doc.lastAutoTable.finalY+10;
+    if(charts['chart-attendance']){try{const img=charts['chart-attendance'].toBase64Image('image/png',1);doc.setFontSize(9);doc.setTextColor(29,52,97);doc.setFont('helvetica','bold');doc.text('EVOLU\u00c7\u00c3O DE PRESEN\u00c7A',M,y+4);doc.addImage(img,'PNG',M,y+6,W-M*2,55);y+=68;}catch(e){}}
+    if(charts['chart-offerings']&&y<250){try{const img=charts['chart-offerings'].toBase64Image('image/png',1);doc.setFontSize(9);doc.setTextColor(29,52,97);doc.setFont('helvetica','bold');doc.text('OFERTAS POR DOMINGO',M,y+4);doc.addImage(img,'PNG',M,y+6,W-M*2,50);y+=62;}catch(e){}}
+    doc.addPage();doc.setFillColor(29,52,97);doc.rect(0,0,W,14,'F');doc.setTextColor(255,255,255);doc.setFontSize(10);doc.setFont('helvetica','bold');doc.text('DADOS DETALHADOS POR DOMINGO',W/2,9,{align:'center'});
+    doc.autoTable({head:[['Data','Pres.','Visit.','Total','B\u00edblia','Revista','Oferta']],body:rpts.map(r=>[fmtDate(r.date),r.totals?.presentes||0,r.totals?.visitantes||0,r.totals?.total||0,r.totals?.biblia||0,r.totals?.revista||0,`R$${(r.totals?.oferta||0).toFixed(2)}`]),startY:18,margin:{left:M,right:M},headStyles:{fillColor:[29,52,97],textColor:255,fontStyle:'bold',fontSize:8},bodyStyles:{fontSize:8,halign:'center'},columnStyles:{0:{halign:'left'}},alternateRowStyles:{fillColor:[248,247,244]}});
+    doc.setFontSize(7);doc.setTextColor(150,150,150);doc.text(`Gerado em ${new Date().toLocaleDateString('pt-BR')} \u00b7 EBD ADI Macatuba`,W/2,doc.lastAutoTable.finalY+6,{align:'center'});
+    doc.save(`Estatisticas_EBD_${periodLabel.replace(/ /g,'_')}.pdf`);showToast('\ud83d\udcca PDF de estat\u00edsticas gerado!');
+  }
+};
+
+// ══ INIT ══
+document.addEventListener('DOMContentLoaded',()=>{
+  ReportForm.init();
+  document.getElementById('stats-month').value=new Date().getMonth();
+  Cal.init();
+  document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.add('hidden');}));
+  document.getElementById('new-class-label').addEventListener('keydown',e=>{if(e.key==='Enter')ClassManager.add();});
+});
+</script>
+</body>
+</html>
+<script>
+// ══ EXCEL EXPORT ══
+const ExcelExport={
+  _x:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>',
+  _e(s){return String(s===undefined||s===null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');},
+  _ct(){return this._x+'\n<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">\n<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>\n<Default Extension="xml" ContentType="application/xml"/>\n<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>\n<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>\n<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>\n</Types>';},
+  _rr(){return this._x+'\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">\n<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>\n</Relationships>';},
+  _wb(n){return this._x+'\n<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">\n<bookViews><workbookView activeTab="0"/></bookViews>\n<sheets><sheet name="'+this._e(n)+'" sheetId="1" r:id="rId1"/></sheets>\n</workbook>';},
+  _wbr(){return this._x+'\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">\n<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>\n<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>\n</Relationships>';},
+  _styles(){return this._x+`
+<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+<numFmts count="1"><numFmt numFmtId="164" formatCode='"R$"\ #,##0.00'/></numFmts>
+<fonts count="5">
+  <font><sz val="11"/><name val="Calibri"/></font>
+  <font><b/><sz val="14"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font>
+  <font><b/><sz val="12"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font>
+  <font><b/><sz val="13"/><color rgb="FF1A1A2E"/><name val="Calibri"/></font>
+  <font><b/><sz val="11"/><color rgb="FF1A1A2E"/><name val="Calibri"/></font>
+</fonts>
+<fills count="5">
+  <fill><patternFill patternType="none"/></fill>
+  <fill><patternFill patternType="gray125"/></fill>
+  <fill><patternFill patternType="solid"><fgColor rgb="FF1D3461"/></patternFill></fill>
+  <fill><patternFill patternType="solid"><fgColor rgb="FFD4E3F7"/></patternFill></fill>
+  <fill><patternFill patternType="solid"><fgColor rgb="FFE8F0FB"/></patternFill></fill>
+</fills>
+<borders count="2">
+  <border><left/><right/><top/><bottom/><diagonal/></border>
+  <border><left style="thin"><color rgb="FFB0C4DE"/></left><right style="thin"><color rgb="FFB0C4DE"/></right><top style="thin"><color rgb="FFB0C4DE"/></top><bottom style="thin"><color rgb="FFB0C4DE"/></bottom><diagonal/></border>
+</borders>
+<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
+<cellXfs count="16">
+  <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
+  <xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>
+  <xf numFmtId="0" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>
+  <xf numFmtId="0" fontId="2" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>
+  <xf numFmtId="0" fontId="3" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="left" vertical="center"/></xf>
+  <xf numFmtId="0" fontId="4" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>
+  <xf numFmtId="0" fontId="3" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="left" vertical="center"/></xf>
+  <xf numFmtId="0" fontId="4" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>
+  <xf numFmtId="0" fontId="2" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="left" vertical="center"/></xf>
+  <xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>
+  <xf numFmtId="0" fontId="3" fillId="4" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="left" vertical="center"/></xf>
+  <xf numFmtId="0" fontId="4" fillId="4" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>
+  <xf numFmtId="164" fontId="4" fillId="0" borderId="1" xfId="0" applyFont="1" applyNumberFormat="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>
+  <xf numFmtId="164" fontId="4" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyNumberFormat="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>
+  <xf numFmtId="164" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyNumberFormat="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>
+  <xf numFmtId="164" fontId="4" fillId="4" borderId="1" xfId="0" applyFont="1" applyFill="1" applyNumberFormat="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>
+</cellXfs>
+</styleSheet>`;},
+  _ws(r){
+    const E=this._e.bind(this);const cl=r.classes||{};const prev=r.domingoAnterior||{};
+    const CLASSES=getClasses();
+    const ac=CLASSES.filter(c=>classHasData(cl[c.key]));
+    Object.keys(cl).forEach(k=>{if(classHasData(cl[k])&&!ac.find(c=>c.key===k))ac.push({key:k,label:k.toUpperCase()});});
+    const MO=['JANEIRO','FEVEREIRO','MARCO','ABRIL','MAIO','JUNHO','JULHO','AGOSTO','SETEMBRO','OUTUBRO','NOVEMBRO','DEZEMBRO'];
+    let dl='';if(r.date){const[y,m,d]=r.date.split('-');dl=`DOMINGO, ${parseInt(d)} DE ${MO[parseInt(m)-1]} DE ${y}`;}
+    const title=`RELATORIO EBD - ${(r.trimestre||'').toUpperCase()} DE ${r.year||new Date().getFullYear()}.`;
+    const cong=`CONGREGACAO: ${(r.congregacao||'MACATUBA').toUpperCase()}`;
+    const sc=(ref,val,si)=>`<c r="${ref}" s="${si}" t="inlineStr"><is><t>${E(val)}</t></is></c>`;
+    const nc=(ref,val,si)=>`<c r="${ref}" s="${si}"><v>${parseFloat(val)||0}</v></c>`;
+    const fc=(ref,f,si)=>`<c r="${ref}" s="${si}"><f>${E(f)}</f></c>`;
+    const ec=(ref,si)=>`<c r="${ref}" s="${si}"/>`;
+    const C=['A','B','C','D','E','F','G','H','I'];
+    const rows=[],merges=[];
+    rows.push(`<row r="1" ht="26" customHeight="1">${sc('A1',title,1)}${C.slice(1).map(c=>ec(c+'1',1)).join('')}</row>`);merges.push('A1:I1');
+    rows.push(`<row r="2" ht="20" customHeight="1">${sc('A2',cong,1)}${C.slice(1).map(c=>ec(c+'2',1)).join('')}</row>`);merges.push('A2:I2');
+    rows.push(`<row r="3" ht="18" customHeight="1">${sc('A3',dl,2)}${C.slice(1).map(c=>ec(c+'3',2)).join('')}</row>`);merges.push('A3:I3');
+    const hd=['CLASSE','MATRIC.','AUSENTES','PRESENTES','VISITANTES','TOTAL','BIBLIA','REVISTA','OFERTA (R$)'];
+    rows.push(`<row r="4" ht="18" customHeight="1">${C.map((c,i)=>sc(c+'4',hd[i],3)).join('')}</row>`);
+    const DS=5;
+    ac.forEach((def,idx)=>{
+      const rn=DS+idx;const d=cl[def.key]||{};const alt=idx%2===1;
+      rows.push(`<row r="${rn}" ht="18" customHeight="1">${sc('A'+rn,def.label,alt?6:4)}${nc('B'+rn,d.matriculados||0,alt?7:5)}${nc('C'+rn,d.ausentes||0,alt?7:5)}${nc('D'+rn,d.presentes||0,alt?7:5)}${nc('E'+rn,d.visitantes||0,alt?7:5)}${nc('F'+rn,d.total||0,alt?7:5)}${nc('G'+rn,d.biblia||0,alt?7:5)}${nc('H'+rn,d.revista||0,alt?7:5)}${nc('I'+rn,d.oferta||0,alt?13:12)}</row>`);
+    });
+    const tR=DS+ac.length,dE=tR-1,sf=c=>`SUM(${c}${DS}:${c}${dE})`;
+    rows.push(`<row r="${tR}" ht="20" customHeight="1">${sc('A'+tR,'TOTAL GERAL',8)}${fc('B'+tR,sf('B'),9)}${fc('C'+tR,sf('C'),9)}${fc('D'+tR,sf('D'),9)}${fc('E'+tR,sf('E'),9)}${fc('F'+tR,sf('F'),9)}${fc('G'+tR,sf('G'),9)}${fc('H'+tR,sf('H'),9)}${fc('I'+tR,sf('I'),14)}</row>`);
+    const pR=tR+1;
+    rows.push(`<row r="${pR}" ht="18" customHeight="1">${sc('A'+pR,'DOMINGO ANTERIOR',10)}${nc('B'+pR,prev.matriculados||0,11)}${nc('C'+pR,prev.ausentes||0,11)}${nc('D'+pR,prev.presentes||0,11)}${nc('E'+pR,prev.visitantes||0,11)}${nc('F'+pR,prev.total||0,11)}${nc('G'+pR,prev.biblia||0,11)}${nc('H'+pR,prev.revista||0,11)}${nc('I'+pR,prev.oferta||0,15)}</row>`);
+    const mc=merges.length?`<mergeCells count="${merges.length}">${merges.map(m=>`<mergeCell ref="${m}"/>`).join('')}</mergeCells>`:'';
+    return this._x+`\n<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">\n<sheetViews><sheetView workbookViewId="0"/></sheetViews>\n<sheetFormatPr defaultRowHeight="18"/>\n<cols>\n<col min="1" max="1" width="36" customWidth="1"/>\n<col min="2" max="9" width="14" customWidth="1"/>\n</cols>\n<sheetData>${rows.join('')}</sheetData>\n${mc}\n</worksheet>`;
+  },
+  async generateReport(r){
+    if(typeof JSZip==='undefined'){showToast('\u26a0\ufe0f JSZip n\u00e3o carregado.');return;}
+    const ds=r.date?r.date.split('-').reverse().join('.'):'sem-data';
+    const zip=new JSZip();
+    zip.file('[Content_Types].xml',this._ct());
+    zip.folder('_rels').file('.rels',this._rr());
+    const xl=zip.folder('xl');
+    xl.file('workbook.xml',this._wb(ds));
+    xl.folder('_rels').file('workbook.xml.rels',this._wbr());
+    xl.folder('worksheets').file('sheet1.xml',this._ws(r));
+    xl.file('styles.xml',this._styles());
+    try{
+      const blob=await zip.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+      const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`Relatorio_EBD_${ds}.xlsx`;
+      document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+      showToast('\ud83d\udcca Excel gerado com sucesso!');
+    }catch(e){showToast('Erro ao gerar Excel: '+e.message);}
+  }
+};
+
+// ══ PDF GENERATOR ══
+const PDFGen={
+  generateReport(r){
+    const{jsPDF}=window.jspdf;const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});const W=297,M=12;
+    doc.setFillColor(29,52,97);doc.rect(0,0,W,22,'F');doc.setTextColor(255,255,255);
+    doc.setFontSize(13);doc.setFont('helvetica','bold');
+    doc.text('RELAT\u00d3RIO DA ESCOLA B\u00cdBLICA DOMINICAL \u2014 E.B.D',W/2,9,{align:'center'});
+    doc.setFontSize(10);doc.setFont('helvetica','normal');
+    doc.text(`${r.trimestre||''} de ${r.year||''} | CONGREGA\u00c7\u00c3O: ${(r.congregacao||'MACATUBA').toUpperCase()} | ${fmtDateWeekday(r.date).toUpperCase()}, ${fmtDateLong(r.date).toUpperCase()}`,W/2,17,{align:'center'});
+    const CLASSES=getClasses();
+    const ac=CLASSES.filter(cl=>classHasData(r.classes?.[cl.key]));
+    Object.keys(r.classes||{}).forEach(k=>{if(classHasData(r.classes[k])&&!ac.find(c=>c.key===k))ac.push({key:k,label:k.toUpperCase()});});
+    const cols=['CLASSE','MATRIC.','AUSENTES','PRESENTES','VISITANTES','TOTAL','B\u00cdBLIA','REVISTA','OFERTA (R$)'];
+    const body=ac.map(cl=>{const d=r.classes?.[cl.key]||{};return[cl.label,d.matriculados||0,d.ausentes||0,d.presentes||0,d.visitantes||0,d.total||0,d.biblia||0,d.revista||0,(d.oferta||0).toFixed(2)];});
+    const t=r.totals||{},p=r.domingoAnterior||{};
+    body.push(['TOTAL GERAL',t.matriculados||0,t.ausentes||0,t.presentes||0,t.visitantes||0,t.total||0,t.biblia||0,t.revista||0,(t.oferta||0).toFixed(2)]);
+    body.push(['DOM. ANTERIOR',p.matriculados||0,p.ausentes||0,p.presentes||0,p.visitantes||0,p.total||0,p.biblia||0,p.revista||0,(p.oferta||0).toFixed(2)]);
+    doc.autoTable({head:[cols],body,startY:26,margin:{left:M,right:M},
+      headStyles:{fillColor:[29,52,97],textColor:255,fontStyle:'bold',fontSize:8,halign:'center'},
+      bodyStyles:{fontSize:8,halign:'center'},
+      columnStyles:{0:{halign:'left',cellWidth:50}},
+      alternateRowStyles:{fillColor:[248,247,244]},
+      didParseCell(d){
+        if(d.row.index===body.length-2&&d.section==='body'){d.cell.styles.fillColor=[29,52,97];d.cell.styles.textColor=255;d.cell.styles.fontStyle='bold';}
+        if(d.row.index===body.length-1&&d.section==='body'){d.cell.styles.fillColor=[240,244,250];d.cell.styles.fontStyle='italic';}
+      }
+    });
+    doc.setFontSize(8);doc.setTextColor(150,150,150);
+    doc.text(`Gerado em ${new Date().toLocaleDateString('pt-BR')} \u00b7 Relat\u00f3rios EBD \u2014 ADI Macatuba`,W/2,doc.lastAutoTable.finalY+8,{align:'center'});
+    doc.save(`Relatorio_EBD_${r.date||'sem-data'}.pdf`);
+    showToast('\ud83d\udcc4 PDF gerado!');
+  },
+  generateStats(rpts,periodLabel,charts){
+    const{jsPDF}=window.jspdf;const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});const W=210,M=14;
+    doc.setFillColor(29,52,97);doc.rect(0,0,W,24,'F');doc.setTextColor(255,255,255);
+    doc.setFontSize(14);doc.setFont('helvetica','bold');doc.text('ESTAT\u00cdSTICAS \u2014 E.B.D',W/2,10,{align:'center'});
+    doc.setFontSize(9);doc.setFont('helvetica','normal');doc.text(`${periodLabel} | ADI Macatuba | ${rpts.length} domingo(s)`,W/2,18,{align:'center'});
+    const pr=rpts.map(r=>r.totals?.presentes||0),vi=rpts.map(r=>r.totals?.visitantes||0),of=rpts.map(r=>r.totals?.oferta||0);
+    const avg=a=>a.length?Math.round(a.reduce((s,v)=>s+v,0)/a.length):0;
+    const sum=a=>a.reduce((s,v)=>s+v,0);
+    doc.autoTable({
+      head:[['Indicador','Valor']],
+      body:[['M\u00e9dia de Presentes',avg(pr)],['Total de Visitantes',sum(vi)],['Maior Presen\u00e7a',Math.max(...pr)||0],['Menor Presen\u00e7a',Math.min(...pr)||0],['Total Ofertas',`R$ ${sum(of).toFixed(2)}`],['M\u00e9dia Ofertas',`R$ ${(sum(of)/(rpts.length||1)).toFixed(2)}`]],
+      startY:30,margin:{left:M,right:M},
+      headStyles:{fillColor:[29,52,97],textColor:255,fontStyle:'bold',fontSize:9},
+      bodyStyles:{fontSize:9},alternateRowStyles:{fillColor:[248,247,244]}
+    });
+    let y=doc.lastAutoTable.finalY+10;
+    if(charts['chart-attendance']){try{const img=charts['chart-attendance'].toBase64Image('image/png',1);doc.setFontSize(9);doc.setTextColor(29,52,97);doc.setFont('helvetica','bold');doc.text('EVOLU\u00c7\u00c3O DE PRESEN\u00c7A',M,y+4);doc.addImage(img,'PNG',M,y+6,W-M*2,55);y+=68;}catch(e){}}
+    if(charts['chart-offerings']&&y<250){try{const img=charts['chart-offerings'].toBase64Image('image/png',1);doc.setFontSize(9);doc.setTextColor(29,52,97);doc.setFont('helvetica','bold');doc.text('OFERTAS POR DOMINGO',M,y+4);doc.addImage(img,'PNG',M,y+6,W-M*2,50);}catch(e){}}
+    doc.addPage();
+    doc.setFillColor(29,52,97);doc.rect(0,0,W,14,'F');doc.setTextColor(255,255,255);
+    doc.setFontSize(10);doc.setFont('helvetica','bold');doc.text('DADOS DETALHADOS POR DOMINGO',W/2,9,{align:'center'});
+    doc.autoTable({
+      head:[['Data','Pres.','Visit.','Total','B\u00edblia','Revista','Oferta']],
+      body:rpts.map(r=>[fmtDate(r.date),r.totals?.presentes||0,r.totals?.visitantes||0,r.totals?.total||0,r.totals?.biblia||0,r.totals?.revista||0,`R$${(r.totals?.oferta||0).toFixed(2)}`]),
+      startY:18,margin:{left:M,right:M},
+      headStyles:{fillColor:[29,52,97],textColor:255,fontStyle:'bold',fontSize:8},
+      bodyStyles:{fontSize:8,halign:'center'},columnStyles:{0:{halign:'left'}},alternateRowStyles:{fillColor:[248,247,244]}
+    });
+    doc.setFontSize(7);doc.setTextColor(150,150,150);
+    doc.text(`Gerado em ${new Date().toLocaleDateString('pt-BR')} \u00b7 EBD ADI Macatuba`,W/2,doc.lastAutoTable.finalY+6,{align:'center'});
+    doc.save(`Estatisticas_EBD_${periodLabel.replace(/ /g,'_')}.pdf`);
+    showToast('\ud83d\udcca PDF de estat\u00edsticas gerado!');
+  }
+};
+
+// ══ INIT ══
+document.addEventListener('DOMContentLoaded',()=>{
+  ReportForm.init();
+  document.getElementById('stats-month').value=new Date().getMonth();
+  Cal.init();
+  document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.add('hidden');}));
+  document.getElementById('new-class-label').addEventListener('keydown',e=>{if(e.key==='Enter')ClassManager.add();});
+});
+</script>
+</body>
+</html>
